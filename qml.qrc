@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>CustomRoundButton.qml</file>
+        <file>images/connected.png</file>
+        <file>images/decrease.png</file>
+        <file>images/disconnected.png</file>
+        <file>images/increase.png</file>
+        <file>images/start_rec.png</file>
+        <file>images/stop_rec.png</file>
+        <file>sounds/bell.wav</file>
+    </qresource>
+</RCC>
