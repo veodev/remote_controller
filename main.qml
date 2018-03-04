@@ -78,7 +78,7 @@ Window {
             width: 44
             height: 39
             color: "#ffffff"
-            text: qsTr("101")
+            text: qsTr("-")
             font.pixelSize: 50
         }
 
@@ -96,7 +96,7 @@ Window {
             width: 44
             height: 39
             color: "#ffffff"
-            text: qsTr("10")
+            text: qsTr("-")
             font.pixelSize: 50
         }
 
@@ -115,7 +115,7 @@ Window {
             width: 44
             height: 39
             color: "#ffffff"
-            text: qsTr("99")
+            text: qsTr("-")
             font.pixelSize: 50
         }
 
