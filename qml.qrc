@@ -9,5 +9,7 @@
         <file>images/start_rec.png</file>
         <file>images/stop_rec.png</file>
         <file>sounds/bell.wav</file>
+        <file>sounds/hourse.wav</file>
+        <file>sounds/bike_bell.wav</file>
     </qresource>
 </RCC>
