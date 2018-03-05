@@ -5,6 +5,16 @@
 #include <QTcpSocket>
 #include <QMediaPlayer>
 
+#include "tmrussian.h"
+
+enum Headers {
+    StartRegistration,
+    StopRegistration,
+    CurrentMeter,
+    Mark,
+    UpdateState
+};
+
 class AppCore : public QObject
 {
     Q_OBJECT
@@ -16,12 +26,22 @@ public:
     int getM();
 
 private:
+#ifdef ANDROID
+    void keepScreenOn(bool on);
+#endif
+    void updateState();
+    void updateTrackMarks();
 
 signals:
     void doSocketConnected();
     void doSocketDisconnected();
     void doSocketConnecting();
-    void newData(int km, int pk, int m);
+    void doNewData(int km, int pk, int m);
+    void doCurrentMeterAndSpeed(int m, int speed);
+    void doStartRegistration(int km, int pk, int m);
+    void doStopRegistration();
+    void doIncrease();
+    void doDecrease();
 
 public slots:
     void onConnectingToServer();
@@ -30,15 +50,20 @@ public slots:
     void onSocketStateChanged(QAbstractSocket::SocketState state);
 
     void checkDistance();
+    void nextTrackmark();
+    void prevTrackmark();
 
 private:
     QTcpSocket* _tcpSocket;
+    QMediaPlayer* _mediaPlayer;
+    TMRussian _trackMarks;
     int _km;
     int _pk;
     int _m;
     int _speed;
-    QMediaPlayer* _mediaPlayer;
     bool _isSoundEnabled;
+    bool _isRegistrationOn;
+    bool _isIncrease;
 };
 
 #endif // APPCORE_H

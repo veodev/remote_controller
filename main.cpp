@@ -2,7 +2,6 @@
 #include <QQmlApplicationEngine>
 #include <QApplication>
 
-#include "uionwidget.h"
 #include "appcore.h"
 
 int main(int argc, char *argv[])

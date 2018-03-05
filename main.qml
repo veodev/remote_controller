@@ -145,10 +145,10 @@ Window {
             anchors.centerIn: parent
             width: nextValue.height
             color: "#1d325e"
-            text: qsTr("6 ПК")
+            text: qsTr("6/7 пк")
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
-            font.pixelSize: 60
+            font.pixelSize: 50
             font.bold: true
         }
     }
@@ -189,6 +189,10 @@ Window {
                 color: minusButton.down ? "white" : "#1d325e"
                 radius: 5
             }
+
+            onClicked: {
+                backend.prevTrackmark()
+            }
         }
 
         Button {
@@ -219,7 +223,7 @@ Window {
             }
 
             onClicked: {
-
+                backend.nextTrackmark()
             }
         }
     }
@@ -303,10 +307,36 @@ Window {
             connectionStatusImage.source = "images/disconnected.png"
         }
 
-        onNewData: {
+        onDoNewData: {
             kmValue.text = km
             pkValue.text = pk
             mValue.text = m
+        }
+
+        onDoCurrentMeterAndSpeed: {
+            mValue.text = m
+        }
+
+        onDoStartRegistration: {
+            registrationStatusImage.source = "images/start_rec.png"
+            kmValue.text = km
+            pkValue.text = pk
+            mValue.text = m
+        }
+
+        onDoStopRegistration: {
+            kmValue.text = "-"
+            pkValue.text = "-"
+            mValue.text = "-"
+            registrationStatusImage.source = "images/stop_rec.png"
+        }
+
+        onDoIncrease: {
+            registrationOptionImage.source = "images/increase.png"
+        }
+
+        onDoDecrease: {
+            registrationOptionImage.source = "images/decrease.png"
         }
     }
 }
