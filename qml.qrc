@@ -11,5 +11,8 @@
         <file>sounds/bell.wav</file>
         <file>sounds/hourse.wav</file>
         <file>sounds/bike_bell.wav</file>
+        <file>MainPage.qml</file>
+        <file>OptionsPage.qml</file>
+        <file>CustomSwitch.qml</file>
     </qresource>
 </RCC>

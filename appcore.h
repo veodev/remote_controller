@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTcpSocket>
 #include <QMediaPlayer>
+#include <QTimer>
 
 #include "tmrussian.h"
 
@@ -48,7 +49,6 @@ public slots:
     void onDisconnectingToServer();
     void onSocketReadyRead();
     void onSocketStateChanged(QAbstractSocket::SocketState state);
-
     void checkDistance();
     void nextTrackmark();
     void prevTrackmark();
