@@ -110,6 +110,11 @@ void AppCore::prevTrackmark()
     emit doNewData(_trackMarks.getKm(), _trackMarks.getPk(), _trackMarks.getM());
 }
 
+void AppCore::readIpAdress()
+{
+    qDebug() << "readIp";
+}
+
 void AppCore::onConnectingToServer()
 {
     if (_tcpSocket == Q_NULLPTR) {
@@ -117,7 +122,7 @@ void AppCore::onConnectingToServer()
         _tcpSocket->setReadBufferSize(32);
         connect(_tcpSocket, &QTcpSocket::readyRead, this, &AppCore::onSocketReadyRead);
         connect(_tcpSocket, &QTcpSocket::stateChanged, this, &AppCore::onSocketStateChanged);
-        _tcpSocket->connectToHost(QHostAddress::Any /*"192.168.10.101"*/, 49001, QTcpSocket::ReadWrite);
+        _tcpSocket->connectToHost(QHostAddress::LocalHost /*"192.168.10.101"*/, 49001, QTcpSocket::ReadWrite);
     }
 }
 
@@ -177,7 +182,7 @@ void AppCore::onSocketStateChanged(QAbstractSocket::SocketState state)
     case QAbstractSocket::UnconnectedState:
         emit doSocketDisconnected();
         onDisconnectingToServer();
-        QTimer::singleShot(CHECK_CONNECTION_INTERVAL_MS, this, &AppCore::onConnectingToServer);
+        QTimer::singleShot(3000, this, &AppCore::onConnectingToServer);
         break;
     case QAbstractSocket::ConnectingState:
         emit doSocketConnecting();

@@ -52,6 +52,7 @@ public slots:
     void checkDistance();
     void nextTrackmark();
     void prevTrackmark();
+    void readIpAdress();
 
 private:
     QTcpSocket* _tcpSocket;

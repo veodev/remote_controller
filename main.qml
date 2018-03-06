@@ -3,7 +3,6 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
 import QtQuick.Window 2.2
 import remote_controller.appcore 1.0
-import Qt.labs.calendar 1.0
 
 Window {
     id: window
@@ -12,10 +11,6 @@ Window {
     height: 800
     color: "#1d325e"
     opacity: 1
-
-    AppCore {
-        id: backend
-    }
 
     Drawer {
         id: drawer
@@ -28,7 +23,6 @@ Window {
         Column {
             id: column
             anchors.fill: parent
-
             ItemDelegate {
                 id: connectItem
                 text: qsTr("Главная")
@@ -63,7 +57,6 @@ Window {
 
     SwipeView {
         id: view
-
         currentIndex: 0
         anchors.fill: parent
 
@@ -78,13 +71,5 @@ Window {
             OptionsPage {
             }
         }
-    }
-
-    PageIndicator {
-        id: indicator
-        count: view.count
-        currentIndex: view.currentIndex
-        anchors.bottom: view.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
     }
 }
