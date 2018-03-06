@@ -19,12 +19,20 @@ enum Headers {
 class AppCore : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool _isSoundEnabled READ getSoundStatus WRITE setSoundStatus NOTIFY soundStatusChanged)
+    Q_PROPERTY(QString _ipAddress READ getIpAddress WRITE setIpAddress NOTIFY ipAddressChanged)
 public:
     explicit AppCore(QObject *parent = nullptr);
 
     int getKm();
     int getPk();
     int getM();
+
+    QString & getIpAddress();
+    void setIpAddress(QString ipAddress);
+
+    bool getSoundStatus();
+    void setSoundStatus(bool isEnabled);
 
 private:
 #ifdef ANDROID
@@ -44,6 +52,9 @@ signals:
     void doIncrease();
     void doDecrease();
 
+    void soundStatusChanged();
+    void ipAddressChanged();
+
 public slots:
     void onConnectingToServer();
     void onDisconnectingToServer();
@@ -52,7 +63,6 @@ public slots:
     void checkDistance();
     void nextTrackmark();
     void prevTrackmark();
-    void readIpAdress();
 
 private:
     QTcpSocket* _tcpSocket;
@@ -65,6 +75,7 @@ private:
     bool _isSoundEnabled;
     bool _isRegistrationOn;
     bool _isIncrease;
+    QString _ipAddress;
 };
 
 #endif // APPCORE_H

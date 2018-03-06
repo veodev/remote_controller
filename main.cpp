@@ -2,6 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <QApplication>
 #include <QQuickView>
+#include <QQmlContext>
 
 #include "appcore.h"
 

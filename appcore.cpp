@@ -3,11 +3,11 @@
 #include <QTcpServer>
 #include <QDebug>
 #include <QDataStream>
+#include <QSettings>
+
 #ifdef ANDROID
     #include <QtAndroidExtras>
 #endif
-
-const int CHECK_CONNECTION_INTERVAL_MS = 3000;
 
 AppCore::AppCore(QObject *parent) : QObject(parent)
   , _tcpSocket(Q_NULLPTR)
@@ -15,15 +15,19 @@ AppCore::AppCore(QObject *parent) : QObject(parent)
   , _pk(0)
   , _m(0)
   , _speed(0)
-  , _isSoundEnabled(true)
   , _isRegistrationOn(false)
   , _isIncrease(false)
 {
 #ifdef ANDROID
     keepScreenOn(true);
 #endif
+
+
     _mediaPlayer = new QMediaPlayer(this);
     onConnectingToServer();
+
+    setIpAddress(QSettings().value("IpAddress").toString());
+    setSoundStatus(QSettings().value("IsSoundEnable").toBool());
 }
 
 int AppCore::getKm()
@@ -39,6 +43,38 @@ int AppCore::getPk()
 int AppCore::getM()
 {
     return _m;
+}
+
+QString &AppCore::getIpAddress()
+{
+    qDebug() << _ipAddress;
+    return _ipAddress;
+}
+
+bool AppCore::getSoundStatus()
+{
+    qDebug() << _isSoundEnabled;
+    return _isSoundEnabled;
+}
+
+void AppCore::setIpAddress(QString ipAddress)
+{
+    qDebug() << "Set Ip: " << ipAddress;
+    _ipAddress = ipAddress;
+    QSettings settings;
+    settings.setValue("IpAddress", ipAddress);
+    qDebug() << "set ip: " << ipAddress;
+    emit ipAddressChanged();
+}
+
+void AppCore::setSoundStatus(bool isEnabled)
+{
+    qDebug() << "Set sound status: " << isEnabled;
+    _isSoundEnabled = isEnabled;
+    QSettings settings;
+    settings.setValue("IsSoundEnable", isEnabled);
+    qDebug() << "From Settings: " << settings.value("IsSoundEnable").toBool();
+    emit soundStatusChanged();
 }
 
 void AppCore::updateState()
@@ -110,11 +146,6 @@ void AppCore::prevTrackmark()
     emit doNewData(_trackMarks.getKm(), _trackMarks.getPk(), _trackMarks.getM());
 }
 
-void AppCore::readIpAdress()
-{
-    qDebug() << "readIp";
-}
-
 void AppCore::onConnectingToServer()
 {
     if (_tcpSocket == Q_NULLPTR) {
@@ -122,7 +153,7 @@ void AppCore::onConnectingToServer()
         _tcpSocket->setReadBufferSize(32);
         connect(_tcpSocket, &QTcpSocket::readyRead, this, &AppCore::onSocketReadyRead);
         connect(_tcpSocket, &QTcpSocket::stateChanged, this, &AppCore::onSocketStateChanged);
-        _tcpSocket->connectToHost(QHostAddress::LocalHost /*"192.168.10.101"*/, 49001, QTcpSocket::ReadWrite);
+        _tcpSocket->connectToHost(_ipAddress, 49001, QTcpSocket::ReadWrite);
     }
 }
 
