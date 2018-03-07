@@ -4,239 +4,185 @@ import QtQuick.Controls 2.2
 import QtQuick.Window 2.2
 
 Item {
-    RowLayout {
-        id: currentCoordinateLayout
-        x: 94
-        width: 466
-        height: 98
-        anchors.horizontalCenterOffset: 0
-        anchors.top: statusBarRowLayout.bottom
+    id: item1
+    width: 480
+    height: 800
+    ColumnLayout {
+        anchors.rightMargin: 15
+        anchors.leftMargin: 15
+        anchors.bottomMargin: 30
         anchors.topMargin: 30
-        anchors.horizontalCenter: parent.horizontalCenter
-        spacing: 0
+        anchors.fill: parent
+        RowLayout {
+            id: statusBarRowLayout
+            x: 162
+            width: 156
+            height: 31
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: 30
 
-        Text {
-            id: kmValue
-            width: 44
-            height: 39
-            color: "#ffffff"
-            text: qsTr("-")
-            font.pixelSize: 50
+            Image {
+                id: registrationStatusImage
+                width: 48
+                height: 48
+                source: "images/stop_rec.png"
+            }
+
+            Image {
+                id: registrationOptionImage
+                width: 48
+                height: 48
+                source: "images/increase.png"
+            }
+
+            Image {
+                id: connectionStatusImage
+                width: 48
+                height: 48
+                source: "images/disconnected.png"
+            }
         }
 
-        Text {
-            id: kmLabel
-            width: 44
-            height: 39
-            color: "#ffffff"
-            text: qsTr("км")
-            font.pixelSize: 40
+        RowLayout {
+            id: currentCoordinateLayout
+            x: 94
+            width: 466
+            height: 98
+            anchors.horizontalCenterOffset: 0
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: 0
+
+            Text {
+                id: kmValue
+                width: 44
+                height: 39
+                color: "#ffffff"
+                text: qsTr("-")
+                font.pixelSize: 50
+            }
+
+            Text {
+                id: kmLabel
+                width: 44
+                height: 39
+                color: "#ffffff"
+                text: qsTr("км")
+                font.pixelSize: 40
+            }
+
+            Text {
+                id: pkValue
+                width: 44
+                height: 39
+                color: "#ffffff"
+                text: qsTr("-")
+                font.pixelSize: 50
+            }
+
+            Text {
+                id: pkLabel
+                width: 44
+                height: 39
+                color: "#ffffff"
+                text: qsTr("пк")
+                font.pixelSize: 40
+            }
+
+            Text {
+                id: mValue
+                width: 44
+                height: 39
+                color: "#ffffff"
+                text: qsTr("-")
+                font.pixelSize: 50
+            }
+
+            Text {
+                id: mLabel
+                width: 44
+                height: 39
+                color: "#ffffff"
+                text: qsTr("м")
+                font.pixelSize: 40
+            }
         }
 
-        Text {
-            id: pkValue
-            width: 44
-            height: 39
-            color: "#ffffff"
-            text: qsTr("-")
-            font.pixelSize: 50
-        }
+        Rectangle {
+            id: nextValueBackground
+            x: 170
+            width: 250
+            height: 250
+            radius: height/2
+            anchors.horizontalCenterOffset: 0
+            anchors.horizontalCenter: currentCoordinateLayout.horizontalCenter
 
-
-        Text {
-            id: pkLabel
-            width: 44
-            height: 39
-            color: "#ffffff"
-            text: qsTr("пк")
-            font.pixelSize: 40
-        }
-
-        Text {
-            id: mValue
-            width: 44
-            height: 39
-            color: "#ffffff"
-            text: qsTr("-")
-            font.pixelSize: 50
-        }
-
-        Text {
-            id: mLabel
-            width: 44
-            height: 39
-            color: "#ffffff"
-            text: qsTr("м")
-            font.pixelSize: 40
-        }
-    }
-
-    Rectangle {
-        id: nextValueBackground
-        x: 170
-        width: 250
-        height: 250
-        radius: height/2
-        anchors.horizontalCenterOffset: 0
-        anchors.top: currentCoordinateLayout.bottom
-        anchors.topMargin: 30
-        anchors.horizontalCenter: currentCoordinateLayout.horizontalCenter
-
-        Label {
-            id: nextValue
-            anchors.centerIn: parent
-            width: nextValue.height
-            color: "#1d325e"
-            text: qsTr("6/7 пк")
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            font.pixelSize: 50
-            font.bold: true
-        }
-    }
-
-    Row {
-        id: plusMinusRowLayout
-        width: 466
-        height: 86
-        spacing: 20
-        anchors.horizontalCenterOffset: 0
-        anchors.top: nextValueBackground.bottom
-        anchors.topMargin: 40
-        anchors.horizontalCenter: parent.horizontalCenter
-
-        Button {
-            id: minusButton
-            width: 223
-            height: 80
-            text: qsTr("-")
-            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-            focusPolicy: Qt.NoFocus
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-            font.pointSize: 24
-
-            contentItem: Text {
-                text: minusButton.text
-                font.pointSize: minusButton.font.pointSize
+            Label {
+                id: nextValue
+                anchors.centerIn: parent
+                width: nextValue.height
+                color: "#1d325e"
+                text: qsTr("6/7 пк")
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
-                color: minusButton.down ? "black" : "white"
+                font.pixelSize: 50
                 font.bold: true
-            }
-
-            background: Rectangle {
-                border.color: "white"
-                border.width: 2
-                color: minusButton.down ? "white" : "#1d325e"
-                radius: 5
-            }
-
-            onClicked: {
-                backend.prevTrackmark()
             }
         }
 
-        Button {
-            id: plusButton
-            width: 223
-            height: 80
-            text: qsTr("+")
+        ColumnLayout {
+            Layout.fillHeight: false
+            Layout.fillWidth: true
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            focusPolicy: Qt.NoFocus
-            font.pointSize: 24
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: 20
 
-            contentItem: Text {
-                text: plusButton.text
-                font.pointSize: minusButton.font.pointSize
-                verticalAlignment: Text.AlignVCenter
-                horizontalAlignment: Text.AlignHCenter
-                color: plusButton.down ? "black" : "white"
-                font.bold: true
+            RowLayout {
+                id: plusMinusRowLayout
+                Layout.fillWidth: true
+                spacing: 20
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                CustomButton {
+                    id: minusButton
+                    Layout.minimumWidth: 220
+                    height: window.height / 10
+                    text: qsTr("-")
+                    focusPolicy: Qt.NoFocus
+                    Layout.fillHeight: true
+                    onClicked: {
+                        backend.prevTrackmark()
+                    }
+                }
+
+                CustomButton {
+                    id: plusButton
+                    Layout.minimumWidth: 220
+                    height: window.height / 10
+                    text: qsTr("+")
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    Layout.fillHeight: true
+                    focusPolicy: Qt.NoFocus
+                    onClicked: {
+                        backend.nextTrackmark()
+                    }
+                }
             }
 
-            background: Rectangle {
-                border.color: "white"
-                border.width: 2
-                color: plusButton.down ? "white" : "#1d325e"
-                radius: 5
+            CustomButton {
+                id: setButton
+                Layout.minimumWidth: plusMinusRowLayout.width
+                text: qsTr("Установить")
+                Layout.fillHeight: false
+                Layout.fillWidth: false
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+                onReleased: {
+                    backend.checkDistance()
+                }
             }
-
-            onClicked: {
-                backend.nextTrackmark()
-            }
-        }
-    }
-    Button {
-        id: setButton
-        x: 135
-        width: 467
-        height: 80
-        text: qsTr("Установить")
-        anchors.horizontalCenterOffset: 1
-        anchors.top: plusMinusRowLayout.bottom
-        anchors.topMargin: 70
-        anchors.horizontalCenter: parent.horizontalCenter
-        font.pointSize: 24
-
-        contentItem: Text {
-            text: setButton.text
-            font.pointSize: 24
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            color: setButton.down ? "black" : "white"
         }
 
-        background: Rectangle {
-            border.color: "white"
-            border.width: 2
-            color: setButton.down ? "white" : "#1d325e"
-            radius: 5
-        }
 
-        onReleased: {
-            backend.checkDistance()
-        }
-    }
-
-    RowLayout {
-        id: statusBarRowLayout
-        x: 162
-        width: 156
-        height: 31
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: 19
-        spacing: 30
-
-        Image {
-            id: registrationStatusImage
-            width: 28
-            height: 28
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-            source: "images/stop_rec.png"
-        }
-
-        Image {
-            id: registrationOptionImage
-            width: 28
-            height: 28
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            source: "images/increase.png"
-        }
-
-        Image {
-            id: connectionStatusImage
-            width: 28
-            height: 28
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            source: "images/disconnected.png"
-        }
     }
 
     Connections {

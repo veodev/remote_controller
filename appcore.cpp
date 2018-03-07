@@ -4,6 +4,8 @@
 #include <QDebug>
 #include <QDataStream>
 #include <QSettings>
+#include <QFile>
+
 
 #ifdef ANDROID
     #include <QtAndroidExtras>
@@ -21,13 +23,12 @@ AppCore::AppCore(QObject *parent) : QObject(parent)
 #ifdef ANDROID
     keepScreenOn(true);
 #endif
-
-
     _mediaPlayer = new QMediaPlayer(this);
-    onConnectingToServer();
-
+    _mediaPlayer->setMedia(QUrl("qrc:/sounds/bike_bell.wav"));
+    _mediaPlayer->setVolume(100);
     setIpAddress(QSettings().value("IpAddress").toString());
     setSoundStatus(QSettings().value("IsSoundEnable").toBool());
+    onConnectingToServer();
 }
 
 int AppCore::getKm()
@@ -47,33 +48,27 @@ int AppCore::getM()
 
 QString &AppCore::getIpAddress()
 {
-    qDebug() << _ipAddress;
     return _ipAddress;
 }
 
 bool AppCore::getSoundStatus()
 {
-    qDebug() << _isSoundEnabled;
     return _isSoundEnabled;
 }
 
 void AppCore::setIpAddress(QString ipAddress)
 {
-    qDebug() << "Set Ip: " << ipAddress;
     _ipAddress = ipAddress;
     QSettings settings;
     settings.setValue("IpAddress", ipAddress);
-    qDebug() << "set ip: " << ipAddress;
     emit ipAddressChanged();
 }
 
 void AppCore::setSoundStatus(bool isEnabled)
 {
-    qDebug() << "Set sound status: " << isEnabled;
     _isSoundEnabled = isEnabled;
     QSettings settings;
     settings.setValue("IsSoundEnable", isEnabled);
-    qDebug() << "From Settings: " << settings.value("IsSoundEnable").toBool();
     emit soundStatusChanged();
 }
 
@@ -125,9 +120,12 @@ void AppCore::keepScreenOn(bool on)
 
 void AppCore::checkDistance()
 {
-    if (_isSoundEnabled == true && _m >= 85) {
+    if (_mediaPlayer->state() == QMediaPlayer::PlayingState) {
+        return;
+    }
+    if (_isSoundEnabled == true) {
         _isSoundEnabled = false;
-        _mediaPlayer->setMedia(QUrl("qrc:/sounds/bike_bell.wav"));
+        _mediaPlayer->setPosition(0);
         _mediaPlayer->play();
     }
 }
@@ -178,7 +176,6 @@ void AppCore::onSocketReadyRead()
         _isRegistrationOn = true;
         inputData >> _isIncrease >> _km >> _pk >> _m;
         updateTrackMarks();
-        checkDistance();
         emit doStartRegistration(_km, _pk, _m);
         if (_isIncrease) {
             emit doIncrease();
@@ -227,5 +224,4 @@ void AppCore::onSocketStateChanged(QAbstractSocket::SocketState state)
     case QAbstractSocket::ListeningState:
         break;
     }
-    qDebug() << state;
 }

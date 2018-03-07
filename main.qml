@@ -9,8 +9,14 @@ Window {
     visible: true
     width: 480
     height: 800
+//    width: Screen.desktopAvailableWidth
+//    height: Screen.desktopAvailableHeight
     color: "#1d325e"
     opacity: 1
+
+    onFocusObjectChanged: {
+        console.log("W: " + Screen.desktopAvailableWidth + " H: " + Screen.desktopAvailableHeight)
+    }
 
     Drawer {
         id: drawer
@@ -59,6 +65,8 @@ Window {
         id: view
         currentIndex: 0
         anchors.fill: parent
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: parent.verticalCenter
 
         Item {
             MainPage{
