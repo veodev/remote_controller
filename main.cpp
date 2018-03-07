@@ -12,8 +12,10 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
     QGuiApplication app(argc, argv);
-    qmlRegisterType<AppCore>("remote_controller.appcore", 1, 0, "AppCore");
+    AppCore appCore;
     QQmlApplicationEngine engine;
+    QQmlContext* context = engine.rootContext();
+    context->setContextProperty("backend", &appCore);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
