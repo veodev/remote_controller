@@ -9,8 +9,6 @@ Window {
     visible: true
     width: 480
     height: 800
-//    width: Screen.desktopAvailableWidth
-//    height: Screen.desktopAvailableHeight
     color: "#1d325e"
     opacity: 1
 
@@ -50,6 +48,26 @@ Window {
             }
 
             ItemDelegate {
+                id: startRegistrationItem
+                text: qsTr("Включить\nрегистрацию")
+                width: parent.width
+                onClicked: {
+                    drawer.close()
+                    backend.startRegistration()
+                }
+            }
+
+            ItemDelegate {
+                id: stopRegistrationItem
+                text: qsTr("Выключить\nрегистрацию")
+                width: parent.width
+                onClicked: {
+                    drawer.close()
+                    backend.stopRegistration()
+                }
+            }
+
+            ItemDelegate {
                 id: exitItem
                 text: qsTr("Выход")
                 width: parent.width
@@ -57,16 +75,21 @@ Window {
                     window.close()
                 }
             }
-
         }
     }
 
     SwipeView {
         id: view
-        currentIndex: 0
+        currentIndex: 1
         anchors.fill: parent
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
+
+        Item {
+            MenuPage{
+                anchors.fill:parent
+            }
+        }
 
         Item {
             MainPage{

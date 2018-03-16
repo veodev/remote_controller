@@ -34,6 +34,9 @@ public:
     bool getSoundStatus();
     void setSoundStatus(bool isEnabled);
 
+    Q_INVOKABLE void startRegistration();
+    Q_INVOKABLE void stopRegistration();
+
 private:
 #ifdef ANDROID
     void keepScreenOn(bool on);

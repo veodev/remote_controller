@@ -72,6 +72,20 @@ void AppCore::setSoundStatus(bool isEnabled)
     emit soundStatusChanged();
 }
 
+void AppCore::startRegistration()
+{
+    QDataStream output(_tcpSocket);
+    output << StartRegistration;
+    qDebug() << "Start registration";
+}
+
+void AppCore::stopRegistration()
+{
+    QDataStream output(_tcpSocket);
+    output << StopRegistration;
+    qDebug() << "Stop registration";
+}
+
 void AppCore::updateState()
 {
     if (_isRegistrationOn) {
@@ -148,10 +162,10 @@ void AppCore::onConnectingToServer()
 {
     if (_tcpSocket == Q_NULLPTR) {
         _tcpSocket = new QTcpSocket(this);
-        _tcpSocket->setReadBufferSize(32);
-        connect(_tcpSocket, &QTcpSocket::readyRead, this, &AppCore::onSocketReadyRead);
+        _tcpSocket->setReadBufferSize(16);
+        connect(_tcpSocket, &QTcpSocket::readyRead, this, &AppCore::onSocketReadyRead, Qt::DirectConnection);
         connect(_tcpSocket, &QTcpSocket::stateChanged, this, &AppCore::onSocketStateChanged);
-        _tcpSocket->connectToHost(_ipAddress, 49001, QTcpSocket::ReadWrite);
+        _tcpSocket->connectToHost(_ipAddress, 49001, QTcpSocket::ReadWrite /*| QTcpSocket::Unbuffered*/);
     }
 }
 
@@ -191,9 +205,9 @@ void AppCore::onSocketReadyRead()
     case CurrentMeter:
         inputData >> _m >> _speed;
         checkDistance();
-        if (_isRegistrationOn) {
+//        if (_isRegistrationOn) {
             emit doCurrentMeterAndSpeed(_m, _speed);
-        }
+//        }
         break;
     case Mark:
         break;

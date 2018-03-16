@@ -15,5 +15,6 @@
         <file>OptionsPage.qml</file>
         <file>CustomSwitch.qml</file>
         <file>CustomButton.qml</file>
+        <file>MenuPage.qml</file>
     </qresource>
 </RCC>
