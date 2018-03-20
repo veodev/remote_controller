@@ -7,11 +7,14 @@
 #include <QTimer>
 
 #include "tmrussian.h"
+#include "enums.h"
 
 enum Headers {
     StartRegistration,
     StopRegistration,
     CurrentMeter,
+    CurrentSpeed,
+    CurrentTrackMarks,
     Mark,
     UpdateState
 };
@@ -49,11 +52,14 @@ signals:
     void doSocketDisconnected();
     void doSocketConnecting();
     void doNewData(int km, int pk, int m);
-    void doCurrentMeterAndSpeed(int m, int speed);
-    void doStartRegistration(int km, int pk, int m);
+    void doCurrentMeter(int m);
+    void doStartRegistration();
     void doStopRegistration();
     void doIncrease();
     void doDecrease();
+    void doCurrentSpeed(double speed);
+    void doCurrentTrackMarks(int km, int pk, int m);
+    void doNextTrackMarks(QString value);
 
     void soundStatusChanged();
     void ipAddressChanged();
@@ -66,6 +72,7 @@ public slots:
     void checkDistance();
     void nextTrackmark();
     void prevTrackmark();
+    void setTrackMarks();
 
 private:
     QTcpSocket* _tcpSocket;
@@ -77,7 +84,7 @@ private:
     int _speed;
     bool _isSoundEnabled;
     bool _isRegistrationOn;
-    bool _isIncrease;
+    Direction _direction;
     QString _ipAddress;
 };
 

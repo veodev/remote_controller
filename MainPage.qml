@@ -44,13 +44,41 @@ Item {
         }
 
         RowLayout {
+            id: rowLayout
+            x: 134
+            y: 194
+            width: 232
+            height: 45
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            Text {
+                id: speedValue
+                color: "#ffffff"
+                text: qsTr("0")
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                Layout.fillWidth: false
+                font.pixelSize: 30
+            }
+
+            Text {
+                id: speedLabel
+                color: "#ffffff"
+                text: qsTr("км/ч")
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                font.pixelSize: 30
+            }
+        }
+
+        RowLayout {
             id: currentCoordinateLayout
             x: 94
             width: 466
             height: 98
             anchors.horizontalCenterOffset: 0
             anchors.horizontalCenter: parent.horizontalCenter
-            spacing: 0
+            spacing: 10
 
             Text {
                 id: kmValue
@@ -110,8 +138,8 @@ Item {
         Rectangle {
             id: nextValueBackground
             x: 170
-            width: 250
-            height: 250
+            width: 300
+            height: 300
             radius: height/2
             anchors.horizontalCenterOffset: 0
             anchors.horizontalCenter: currentCoordinateLayout.horizontalCenter
@@ -127,6 +155,7 @@ Item {
                 font.pixelSize: 50
                 font.bold: true
             }
+
         }
 
         ColumnLayout {
@@ -177,12 +206,10 @@ Item {
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 anchors.horizontalCenter: parent.horizontalCenter
                 onReleased: {
-                    backend.checkDistance()
+                    backend.setTrackMarks()
                 }
             }
         }
-
-
     }
 
     Connections {
@@ -195,27 +222,15 @@ Item {
             connectionStatusImage.source = "images/disconnected.png"
         }
 
-        onDoNewData: {
-            kmValue.text = km
-            pkValue.text = pk
-            mValue.text = m
-        }
-
-        onDoCurrentMeterAndSpeed: {
+        onDoCurrentMeter: {
             mValue.text = m
         }
 
         onDoStartRegistration: {
             registrationStatusImage.source = "images/start_rec.png"
-            kmValue.text = km
-            pkValue.text = pk
-            mValue.text = m
         }
 
         onDoStopRegistration: {
-            kmValue.text = "-"
-            pkValue.text = "-"
-            mValue.text = "-"
             registrationStatusImage.source = "images/stop_rec.png"
         }
 
@@ -225,6 +240,18 @@ Item {
 
         onDoDecrease: {
             registrationOptionImage.source = "images/decrease.png"
+        }
+        onDoCurrentSpeed: {
+            (speed < 10) ? speedValue.text = Number(speed).toPrecision(2)
+                         : speedValue.text = Number(speed).toPrecision(3)
+        }
+        onDoCurrentTrackMarks: {
+            kmValue.text = km
+            pkValue.text = pk
+            mValue.text = m
+        }
+        onDoNextTrackMarks: {
+            nextValue.text = value
         }
     }
 }

@@ -6,7 +6,6 @@
 #include <QSettings>
 #include <QFile>
 
-
 #ifdef ANDROID
     #include <QtAndroidExtras>
 #endif
@@ -18,7 +17,7 @@ AppCore::AppCore(QObject *parent) : QObject(parent)
   , _m(0)
   , _speed(0)
   , _isRegistrationOn(false)
-  , _isIncrease(false)
+  , _direction(UnknownDirection)
 {
 #ifdef ANDROID
     keepScreenOn(true);
@@ -76,29 +75,44 @@ void AppCore::startRegistration()
 {
     QDataStream output(_tcpSocket);
     output << StartRegistration;
-    qDebug() << "Start registration";
 }
 
 void AppCore::stopRegistration()
 {
     QDataStream output(_tcpSocket);
     output << StopRegistration;
-    qDebug() << "Stop registration";
 }
 
 void AppCore::updateState()
 {
-    if (_isRegistrationOn) {
-        updateTrackMarks();
-        emit doStartRegistration(_km, _pk, _m);
+    updateTrackMarks();
+    if (_direction == ForwardDirection) {
+        emit doIncrease();
+    }
+    else if (_direction == BackwardDirection) {
+        emit doDecrease();
+    }
+    if (_isRegistrationOn == true) {
+        emit doStartRegistration();
     }
     else {
         emit doStopRegistration();
     }
+    emit doCurrentTrackMarks(_km, _pk, _m);
+    _trackMarks.next();
+    QString nextValue;
+    if (_trackMarks.getPostKm(0) == _trackMarks.getPostKm(1)) {
+        nextValue = QString::number(_trackMarks.getPostPk(0)) + "/" + QString::number(_trackMarks.getPostPk(1)) + " пк";
+    }
+    else {
+        nextValue = QString::number(_trackMarks.getPostKm(0)) + "/" + QString::number(_trackMarks.getPostKm(1)) + " км";
+    }
+    emit doNextTrackMarks(nextValue);
 }
 
 void AppCore::updateTrackMarks()
 {
+    _trackMarks.setDirection(_direction);
     _trackMarks.setKm(_km);
     _trackMarks.setPk(_pk);
     _trackMarks.setM(_m);
@@ -138,34 +152,66 @@ void AppCore::checkDistance()
         return;
     }
     if (_isSoundEnabled == true) {
-        _isSoundEnabled = false;
-        _mediaPlayer->setPosition(0);
-        _mediaPlayer->play();
+        if ((_direction == ForwardDirection && (_m > 80 && _m < 100)) || (_direction == BackwardDirection && (_m > 0 && _m < 20))) {
+            _isSoundEnabled = false;
+            _mediaPlayer->setPosition(0);
+            _mediaPlayer->play();
+        }
     }
 }
 
 void AppCore::nextTrackmark()
 {
+    QString nextValue;
     _trackMarks.next();
     _trackMarks.updatePost();
-    emit doNewData(_trackMarks.getKm(), _trackMarks.getPk(), _trackMarks.getM());
+    if (_trackMarks.getPostKm(0) == _trackMarks.getPostKm(1)) {
+        nextValue = QString::number(_trackMarks.getPostPk(0)) + "/" + QString::number(_trackMarks.getPostPk(1)) + " пк";
+    }
+    else {
+        nextValue = QString::number(_trackMarks.getPostKm(0)) + "/" + QString::number(_trackMarks.getPostKm(1)) + " км";
+    }
+    emit doNextTrackMarks(nextValue);
 }
 
 void AppCore::prevTrackmark()
 {
+    QString nextValue;
     _trackMarks.prev();
     _trackMarks.updatePost();
-    emit doNewData(_trackMarks.getKm(), _trackMarks.getPk(), _trackMarks.getM());
+    if (_trackMarks.getPostKm(0) == _trackMarks.getPostKm(1)) {
+        nextValue = QString::number(_trackMarks.getPostPk(0)) + "/" + QString::number(_trackMarks.getPostPk(1)) + " пк";
+    }
+    else {
+        nextValue = QString::number(_trackMarks.getPostKm(0)) + "/" + QString::number(_trackMarks.getPostKm(1)) + " км";
+    }
+    emit doNextTrackMarks(nextValue);
+}
+
+void AppCore::setTrackMarks()
+{
+    QDataStream output(_tcpSocket);
+    output << CurrentTrackMarks << _trackMarks.getKm() << _trackMarks.getPk();
+    QString nextValue;
+    _trackMarks.next();
+    if (_trackMarks.getPostKm(0) == _trackMarks.getPostKm(1)) {
+        nextValue = QString::number(_trackMarks.getPostPk(0)) + "/" + QString::number(_trackMarks.getPostPk(1)) + " пк";
+    }
+    else {
+        nextValue = QString::number(_trackMarks.getPostKm(0)) + "/" + QString::number(_trackMarks.getPostKm(1)) + " км";
+    }
+    emit doNextTrackMarks(nextValue);
+    _isSoundEnabled = true;
 }
 
 void AppCore::onConnectingToServer()
 {
     if (_tcpSocket == Q_NULLPTR) {
         _tcpSocket = new QTcpSocket(this);
-        _tcpSocket->setReadBufferSize(16);
+        _tcpSocket->setReadBufferSize(32);
         connect(_tcpSocket, &QTcpSocket::readyRead, this, &AppCore::onSocketReadyRead, Qt::DirectConnection);
         connect(_tcpSocket, &QTcpSocket::stateChanged, this, &AppCore::onSocketStateChanged);
-        _tcpSocket->connectToHost(_ipAddress, 49001, QTcpSocket::ReadWrite /*| QTcpSocket::Unbuffered*/);
+        _tcpSocket->connectToHost(_ipAddress, 49001, QTcpSocket::ReadWrite);
     }
 }
 
@@ -184,35 +230,26 @@ void AppCore::onSocketReadyRead()
 {
     QDataStream inputData(_tcpSocket);
     int header;
+    int direction;
     inputData >> header;
     switch (static_cast<Headers>(header)) {
-    case StartRegistration:
-        _isRegistrationOn = true;
-        inputData >> _isIncrease >> _km >> _pk >> _m;
-        updateTrackMarks();
-        emit doStartRegistration(_km, _pk, _m);
-        if (_isIncrease) {
-            emit doIncrease();
-        }
-        else {
-            emit doDecrease();
-        }
-        break;
-    case StopRegistration:
-        _isRegistrationOn = false;
-        emit doStopRegistration();
-        break;
     case CurrentMeter:
-        inputData >> _m >> _speed;
+        inputData >> _m;
         checkDistance();
-//        if (_isRegistrationOn) {
-            emit doCurrentMeterAndSpeed(_m, _speed);
-//        }
+        emit doCurrentMeter(_m);
         break;
-    case Mark:
+    case CurrentSpeed:
+        double speed;
+        inputData >> speed;
+        emit doCurrentSpeed(speed);
+        break;
+    case CurrentTrackMarks:
+        inputData >> _km >> _pk >> _m;
+        updateState();
         break;
     case UpdateState:
-        inputData >> _isRegistrationOn >> _isIncrease >> _km >> _pk >> _m >> _speed;
+        inputData >> _isRegistrationOn >> direction >> _km >> _pk >> _m;
+        _direction = static_cast<Direction>(direction);
         updateState();
         break;
     }
