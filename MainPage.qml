@@ -4,9 +4,6 @@ import QtQuick.Controls 2.2
 import QtQuick.Window 2.2
 
 Item {
-    id: item1
-    width: 480
-    height: 800
     ColumnLayout {
         anchors.rightMargin: 15
         anchors.leftMargin: 15
@@ -76,9 +73,12 @@ Item {
             x: 94
             width: 466
             height: 98
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+            Layout.fillHeight: false
+            Layout.fillWidth: false
             anchors.horizontalCenterOffset: 0
             anchors.horizontalCenter: parent.horizontalCenter
-            spacing: 10
+            spacing: 20
 
             Text {
                 id: kmValue
@@ -159,8 +159,6 @@ Item {
         }
 
         ColumnLayout {
-            Layout.fillHeight: false
-            Layout.fillWidth: true
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: 20
@@ -173,8 +171,7 @@ Item {
 
                 CustomButton {
                     id: minusButton
-                    Layout.minimumWidth: 220
-                    height: window.height / 10
+                    Layout.minimumWidth: Screen.desktopAvailableWidth / 20 /*220*/
                     text: qsTr("-")
                     focusPolicy: Qt.NoFocus
                     Layout.fillHeight: true
@@ -185,8 +182,8 @@ Item {
 
                 CustomButton {
                     id: plusButton
-                    Layout.minimumWidth: 220
-                    height: window.height / 10
+                    Layout.minimumWidth: Screen.desktopAvailableWidth / 20
+//                    transform:
                     text: qsTr("+")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     Layout.fillHeight: true
@@ -201,8 +198,8 @@ Item {
                 id: setButton
                 Layout.minimumWidth: plusMinusRowLayout.width
                 text: qsTr("Установить")
-                Layout.fillHeight: false
-                Layout.fillWidth: false
+
+
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 anchors.horizontalCenter: parent.horizontalCenter
                 onReleased: {
