@@ -258,7 +258,7 @@ void AppCore::onSocketReadyRead()
     case CurrentMeter:
         inputData >> _m;
         checkDistance();
-        emit doCurrentMeter(_m);
+        updateCurrentCoordinate();
         break;
     case CurrentSpeed:
         double speed;
