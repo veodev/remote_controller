@@ -13,6 +13,9 @@ class TMRussian : public TrackMarks
 public:
     void updatePost();
     QString getString();
+    QString getHmString();
+    QString getKmString();
+    QString getMeterString();
     void syncPole(int a, int b);
     void addMeter(int meter);
     void setPostKm(unsigned char n, int value);

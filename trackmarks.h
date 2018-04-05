@@ -9,6 +9,13 @@ enum Direction
     BackwardDirection = -1
 };
 
+enum ViewCoordinate {
+    KmPkM,
+    KmCommaM,
+    Hectometer,
+    MeterOnly,
+};
+
 class TrackMarks
 {
 protected:
@@ -20,6 +27,9 @@ public:
     TrackMarks();
     virtual ~TrackMarks();
     virtual QString getString() = 0;
+    virtual QString getHmString() = 0;
+    virtual QString getKmString() = 0;
+    virtual QString getMeterString() = 0;
     virtual int getTotalMeter();
     virtual void addMeter(int meter);
     virtual void addCentimeter(int cm);

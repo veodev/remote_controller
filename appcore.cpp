@@ -18,6 +18,7 @@ AppCore::AppCore(QObject *parent) : QObject(parent)
   , _speed(0)
   , _isRegistrationOn(false)
   , _direction(UnknownDirection)
+  , _viewType(KmPkM)
 {
 #ifdef ANDROID
     keepScreenOn(true);
@@ -86,19 +87,21 @@ void AppCore::stopRegistration()
 void AppCore::updateState()
 {
     updateTrackMarks();
+    updateCurrentCoordinate();
     if (_direction == ForwardDirection) {
         emit doIncrease();
     }
     else if (_direction == BackwardDirection) {
         emit doDecrease();
     }
+
     if (_isRegistrationOn == true) {
         emit doStartRegistration();
     }
     else {
         emit doStopRegistration();
     }
-    emit doCurrentTrackMarks(_km, _pk, _m);
+
     _trackMarks.next();
     QString nextValue;
     if (_trackMarks.getPostKm(0) == _trackMarks.getPostKm(1)) {
@@ -118,6 +121,24 @@ void AppCore::updateTrackMarks()
     _trackMarks.setM(_m);
     _trackMarks.updatePost();
 
+}
+
+void AppCore::updateCurrentCoordinate()
+{
+    switch(_viewType) {
+    case KmPkM:
+        emit doCurrentTrackMarks(_trackMarks.getString());
+        break;
+    case KmCommaM:
+        emit doCurrentTrackMarks(_trackMarks.getKmString());
+        break;
+    case Hectometer:
+        emit doCurrentTrackMarks(_trackMarks.getHmString());
+        break;
+    case MeterOnly:
+        emit doCurrentTrackMarks(_trackMarks.getMeterString());
+        break;
+    }
 }
 
 #ifdef ANDROID
@@ -231,6 +252,7 @@ void AppCore::onSocketReadyRead()
     QDataStream inputData(_tcpSocket);
     int header;
     int direction;
+    int viewType;
     inputData >> header;
     switch (static_cast<Headers>(header)) {
     case CurrentMeter:
@@ -248,8 +270,9 @@ void AppCore::onSocketReadyRead()
         updateState();
         break;
     case UpdateState:
-        inputData >> _isRegistrationOn >> direction >> _km >> _pk >> _m;
+        inputData >> _isRegistrationOn >> viewType >> direction >> _km >> _pk >> _m;
         _direction = static_cast<Direction>(direction);
+        _viewType = static_cast<ViewCoordinate>(viewType);
         updateState();
         break;
     }

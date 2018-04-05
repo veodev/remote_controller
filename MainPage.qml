@@ -81,56 +81,10 @@ Item {
             spacing: 10
 
             Text {
-                id: kmValue
+                id: currentCoordinate
                 width: 44
                 height: 39
                 color: "#ffffff"
-                text: qsTr("-")
-                font.pixelSize: 50
-            }
-
-            Text {
-                id: kmLabel
-                width: 44
-                height: 39
-                color: "#ffffff"
-                text: qsTr("км")
-                font.pixelSize: 40
-            }
-
-            Text {
-                id: pkValue
-                width: 44
-                height: 39
-                color: "#ffffff"
-                text: qsTr("-")
-                font.pixelSize: 50
-            }
-
-            Text {
-                id: pkLabel
-                width: 44
-                height: 39
-                color: "#ffffff"
-                text: qsTr("пк")
-                font.pixelSize: 40
-            }
-
-            Text {
-                id: mValue
-                width: 44
-                height: 39
-                color: "#ffffff"
-                text: qsTr("-")
-                font.pixelSize: 50
-            }
-
-            Text {
-                id: mLabel
-                width: 44
-                height: 39
-                color: "#ffffff"
-                text: qsTr("м")
                 font.pixelSize: 40
             }
         }
@@ -246,9 +200,7 @@ Item {
                          : speedValue.text = Number(speed).toPrecision(3)
         }
         onDoCurrentTrackMarks: {
-            kmValue.text = km
-            pkValue.text = pk
-            mValue.text = m
+            currentCoordinate.text = value
         }
         onDoNextTrackMarks: {
             nextValue.text = value

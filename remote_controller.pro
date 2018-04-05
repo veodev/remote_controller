@@ -1,6 +1,9 @@
 QT += quick core gui network multimedia
 CONFIG += c++11
 
+#For using ccache install package in your operating system.
+QMAKE_CXX=ccache g++
+
 android {
     QT += androidextras
 }

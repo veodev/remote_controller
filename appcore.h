@@ -7,7 +7,6 @@
 #include <QTimer>
 
 #include "tmrussian.h"
-#include "enums.h"
 
 enum Headers {
     StartRegistration,
@@ -46,6 +45,7 @@ private:
 #endif
     void updateState();
     void updateTrackMarks();
+    void updateCurrentCoordinate();
 
 signals:
     void doSocketConnected();
@@ -58,8 +58,8 @@ signals:
     void doIncrease();
     void doDecrease();
     void doCurrentSpeed(double speed);
-    void doCurrentTrackMarks(int km, int pk, int m);
     void doNextTrackMarks(QString value);
+    void doCurrentTrackMarks(QString value);
 
     void soundStatusChanged();
     void ipAddressChanged();
@@ -85,6 +85,7 @@ private:
     bool _isSoundEnabled;
     bool _isRegistrationOn;
     Direction _direction;
+    ViewCoordinate _viewType;
     QString _ipAddress;
 };
 

@@ -5,6 +5,24 @@ QString TMRussian::getString()
     return QString::number(_km) + " км " + QString::number(_pk) + " пк " + QString::number(_meter) + " м";
 }
 
+QString TMRussian::getHmString()
+{
+    int totalMeters = _km * 1000 + _pk * 100 + _meter;
+    return QString("%1+%2").arg(totalMeters / 100).arg(totalMeters % 100);
+}
+
+QString TMRussian::getKmString()
+{
+    int totalMeters = _km * 1000 + _pk * 100 + _meter;
+    return QString("%1,%2 км").arg(_km).arg(totalMeters % 1000);
+}
+
+QString TMRussian::getMeterString()
+{
+    int totalMeters = _km * 1000 + _pk * 100 + _meter;
+    return QString("%1 м").arg(totalMeters);
+}
+
 void TMRussian::syncPole(int a, int b)
 {
     _km = a;
