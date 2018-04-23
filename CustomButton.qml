@@ -4,11 +4,9 @@ import QtQuick.Controls 2.2
 Button {
     id: setButton
     property alias customButtonText: setButton.text
-    font.pointSize: 24
 
     contentItem: Text {
         text: setButton.text
-        font.pointSize: 24
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
         color: setButton.down ? "black" : "white"

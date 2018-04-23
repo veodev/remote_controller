@@ -83,6 +83,7 @@ public slots:
     void setTrackMarks();
     void onPositionUpdate(const QGeoPositionInfo& info);
     void onSatellitesInUseUpdated(const QList<QGeoSatelliteInfo>& satellites);
+    void onSatellitesError(QGeoSatelliteInfoSource::Error satelliteError);
 
 private:
     QTcpSocket* _tcpSocket;

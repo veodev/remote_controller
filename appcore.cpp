@@ -37,6 +37,7 @@ AppCore::AppCore(QObject *parent) : QObject(parent)
 
     _geoSatellite = QGeoSatelliteInfoSource::createDefaultSource(this);
     connect(_geoSatellite, &QGeoSatelliteInfoSource::satellitesInUseUpdated, this, &AppCore::onSatellitesInUseUpdated);
+    connect(_geoSatellite, SIGNAL(error(QGeoSatelliteInfoSource::Error)), this, SLOT(onSatellitesError(QGeoSatelliteInfoSource::Error)));
     _geoSatellite->setUpdateInterval(3000);
     _geoSatellite->startUpdates();
 }
@@ -273,6 +274,22 @@ void AppCore::onSatellitesInUseUpdated(const QList<QGeoSatelliteInfo> &satellite
     }
     qDebug() << "In use: " << satellites.count();
     emit satellitesCount(count);
+}
+
+void AppCore::onSatellitesError(QGeoSatelliteInfoSource::Error satelliteError)
+{
+    switch (satelliteError) {
+    case QGeoSatelliteInfoSource::AccessError:
+        break;
+    case QGeoPositionInfoSource::ClosedError:
+        emit satellitesNotFound();
+        break;
+    case QGeoPositionInfoSource::NoError:
+        break;
+    case QGeoPositionInfoSource::UnknownSourceError:
+        break;
+    }
+    qDebug() << satelliteError;
 }
 
 void AppCore::onConnectingToServer()

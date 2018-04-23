@@ -47,8 +47,12 @@ Item {
 
                 Text {
                     id: satellitesCount
+                    width: 48
+                    height: 4
                     color: "#ffffff"
                     text: qsTr("0")
+                    Layout.minimumHeight: 48
+                    Layout.minimumWidth: 30
                     topPadding: 27
                     verticalAlignment: Text.AlignVCenter
                     Layout.fillWidth: true
@@ -120,14 +124,15 @@ Item {
         Rectangle {
             id: nextValueBackground
             x: 160
-            y: 522
+            y: 478
             width: item1.height / 3
             height: width
             color: "#ffffff"
             radius: height / 2
+            anchors.horizontalCenterOffset: 0
             anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: plusMinusSetColumnLayout.top
-            anchors.bottomMargin: 50
+            anchors.bottom: minusButton.top
+            anchors.bottomMargin: 20
 
             Label {
                 id: nextValue
@@ -179,110 +184,121 @@ Item {
             }
         }
 
-        ColumnLayout {
-            id: plusMinusSetColumnLayout
-            y: 942
-            height: item1.height / 5
+        Button {
+            id: minusButton
+            y: 915
+            width: (setButton.width / 2) - 20
+            height: item1.height/10
+            text: " -"
+            anchors.bottom: setButton.top
+            anchors.bottomMargin: 20
+            anchors.left: parent.left
+            anchors.leftMargin: 20
+            Layout.fillWidth: true
+            focusPolicy: Qt.NoFocus
+            Layout.fillHeight: true
+            font.pixelSize: 30
+            contentItem: Text {
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                color: minusButton.down ? "black" : "white"
+                text: "-"
+                font.pointSize: 24
+                fontSizeMode: Text.Fit
+                elide: Text.ElideNone
+                textFormat: Text.PlainText
+                //                        font.pointSize: 30
+                font.bold: true
+            }
+
+            background: Rectangle {
+                border.color: "white"
+                border.width: 2
+                color: minusButton.down ? "white" : "#00000000"
+                radius: 5
+                anchors.fill:parent
+            }
+            onClicked: {
+                backend.prevTrackmark()
+            }
+
+        }
+
+        Button {
+            id: plusButton
+            x: 399
+            y: 915
+            width: (setButton.width / 2) - 20
+            height: item1.height/10
+            text: "+"
+            anchors.bottom: setButton.top
+            anchors.bottomMargin: 20
+            anchors.right: parent.right
+            anchors.rightMargin: 20
+            font.pixelSize: 30
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            focusPolicy: Qt.NoFocus
+
+            contentItem: Text {
+                textFormat: Text.PlainText
+                //                        font.pointSize: 6
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                color: plusButton.down ? "black" : "white"
+                text: "+"
+                font.pointSize: 24
+                fontSizeMode: Text.Fit
+                font.family: "DejaVu Sans"
+                font.bold: true
+            }
+
+            background: Rectangle {
+                border.color: "white"
+                border.width: 2
+                color: plusButton.down ? "white" : "#00000000"
+                radius: 5
+                anchors.fill:parent
+            }
+            onClicked: {
+                backend.nextTrackmark()
+            }
+        }
+
+        Button {
+            id: setButton
+            y: 1064
+            height: item1.height/10
+            text: qsTr("Установить")
             anchors.right: parent.right
             anchors.rightMargin: 20
             anchors.left: parent.left
             anchors.leftMargin: 20
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 20
-            spacing: 20
-
-            RowLayout {
-                id: rowLayout1
-                width: 620
-                height: 76
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-                spacing: 20
-
-                Button {
-                    id: minusButton
-                    text: " -"
-                    Layout.fillWidth: true
-                    focusPolicy: Qt.NoFocus
-                    Layout.fillHeight: true
-                    font.pixelSize: 30
-                    contentItem: Text {
-                        font.pointSize: 0
-                        verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignHCenter
-                        color: minusButton.down ? "black" : "white"
-                        text: "-"
-                    }
-
-                    background: Rectangle {
-                        border.color: "white"
-                        border.width: 2
-                        color: minusButton.down ? "white" : "#00000000"
-                        radius: 5
-                        anchors.fill:parent
-                    }
-                    onClicked: {
-                        backend.prevTrackmark()
-                    }
-
-                }
-
-                Button {
-                    id: plusButton
-                    text: "+"
-                    font.pixelSize: 30
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    focusPolicy: Qt.NoFocus
-
-                    contentItem: Text {
-                        text: plusButton.text
-                        textFormat: Text.PlainText
-                        font.pointSize: 0
-                        verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignHCenter
-                        color: plusButton.down ? "black" : "white"
-                    }
-
-                    background: Rectangle {
-                        border.color: "white"
-                        border.width: 2
-                        color: plusButton.down ? "white" : "#00000000"
-                        radius: 5
-                        anchors.fill:parent
-                    }
-                    onClicked: {
-                        backend.nextTrackmark()
-                    }
-                }
+            font.pointSize: 30
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+            contentItem: Text {
+                text: setButton.text
+                font.bold: false
+                font.pointSize: 24
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                color: setButton.down ? "black" : "white"
             }
 
-            Button {
-                id: setButton
-                text: qsTr("Установить")
-                font.pointSize: 30
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                contentItem: Text {
-                    text: setButton.text
-                    font.pointSize: 24
-                    verticalAlignment: Text.AlignVCenter
-                    horizontalAlignment: Text.AlignHCenter
-                    color: setButton.down ? "black" : "white"
-                }
+            background: Rectangle {
+                border.color: "white"
+                border.width: 2
+                color: setButton.down ? "white" : "#00000000"
+                radius: 5
+                anchors.fill:parent
+            }
 
-                background: Rectangle {
-                    border.color: "white"
-                    border.width: 2
-                    color: setButton.down ? "white" : "#00000000"
-                    radius: 5
-                    anchors.fill:parent
-                }
-
-                onReleased: {
-                    backend.setTrackMarks()
-                }
+            onReleased: {
+                backend.setTrackMarks()
             }
         }
 
@@ -294,7 +310,7 @@ Item {
             spacing: 20
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: nextValueBackground.top
-            anchors.bottomMargin: 50
+            anchors.bottomMargin: 30
 
             RowLayout {
                 id: rowLayout
@@ -344,6 +360,9 @@ Item {
                 font.pixelSize: item1.height / 20
             }
         }
+
+
+
     }
 
     Connections {
@@ -391,6 +410,7 @@ Item {
         }
         onSatellitesNotFound: {
             sateliteAnimation.start()
+            satellitesCount.text = 0
         }
         onSatellitesCount: {
             satellitesCount.text = count
