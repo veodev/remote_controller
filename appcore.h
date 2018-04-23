@@ -5,6 +5,8 @@
 #include <QTcpSocket>
 #include <QMediaPlayer>
 #include <QTimer>
+#include <QGeoPositionInfoSource>
+#include <QGeoSatelliteInfoSource>
 
 #include "tmrussian.h"
 
@@ -15,7 +17,9 @@ enum Headers {
     CurrentSpeed,
     CurrentTrackMarks,
     Mark,
-    UpdateState
+    UpdateState,
+    SatellitesInfo,
+    SatellitesInUse
 };
 
 class AppCore : public QObject
@@ -64,6 +68,10 @@ signals:
     void soundStatusChanged();
     void ipAddressChanged();
 
+    void satellitesFound();
+    void satellitesNotFound();
+    void satellitesCount(int count);
+
 public slots:
     void onConnectingToServer();
     void onDisconnectingToServer();
@@ -73,6 +81,8 @@ public slots:
     void nextTrackmark();
     void prevTrackmark();
     void setTrackMarks();
+    void onPositionUpdate(const QGeoPositionInfo& info);
+    void onSatellitesInUseUpdated(const QList<QGeoSatelliteInfo>& satellites);
 
 private:
     QTcpSocket* _tcpSocket;
@@ -87,6 +97,8 @@ private:
     Direction _direction;
     ViewCoordinate _viewType;
     QString _ipAddress;
+    QGeoPositionInfoSource* _geoPosition;
+    QGeoSatelliteInfoSource* _geoSatellite;
 };
 
 #endif // APPCORE_H

@@ -16,5 +16,7 @@
         <file>CustomSwitch.qml</file>
         <file>CustomButton.qml</file>
         <file>MenuPage.qml</file>
+        <file>Spinner.qml</file>
+        <file>images/satellite.png</file>
     </qresource>
 </RCC>

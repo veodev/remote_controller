@@ -7,14 +7,9 @@ import QtQuick.Controls.Styles 1.4
 Window {
     id: window
     visible: true
-    width: 480
-    height: 800
+    width: 720
+    height: 1280
     color: "#1d325e"
-    opacity: 1
-
-    onFocusObjectChanged: {
-        console.log("W: " + Screen.desktopAvailableWidth + " H: " + Screen.desktopAvailableHeight)
-    }
 
     Drawer {
         id: drawer

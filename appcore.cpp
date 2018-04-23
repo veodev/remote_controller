@@ -29,6 +29,16 @@ AppCore::AppCore(QObject *parent) : QObject(parent)
     setIpAddress(QSettings().value("IpAddress").toString());
     setSoundStatus(QSettings().value("IsSoundEnable").toBool());
     onConnectingToServer();
+
+    _geoPosition = QGeoPositionInfoSource::createDefaultSource(this);
+    connect(_geoPosition, &QGeoPositionInfoSource::positionUpdated, this , &AppCore::onPositionUpdate);
+    _geoPosition->setUpdateInterval(3000);
+    _geoPosition->startUpdates();
+
+    _geoSatellite = QGeoSatelliteInfoSource::createDefaultSource(this);
+    connect(_geoSatellite, &QGeoSatelliteInfoSource::satellitesInUseUpdated, this, &AppCore::onSatellitesInUseUpdated);
+    _geoSatellite->setUpdateInterval(3000);
+    _geoSatellite->startUpdates();
 }
 
 int AppCore::getKm()
@@ -223,6 +233,46 @@ void AppCore::setTrackMarks()
     }
     emit doNextTrackMarks(nextValue);
     _isSoundEnabled = true;
+}
+
+void AppCore::onPositionUpdate(const QGeoPositionInfo &info)
+{
+    QGeoCoordinate coordinate = info.coordinate();
+    if (coordinate.type() == QGeoCoordinate::Coordinate2D) {
+        qDebug() << "Coordinate: " << coordinate.toString(QGeoCoordinate::DegreesMinutesSecondsWithHemisphere);
+    }
+
+    qreal direction = info.attribute(QGeoPositionInfo::Direction);
+    if (::qIsNaN(direction) == false) {
+        qDebug() << "Direction: " << QString::number(direction);
+    }
+
+    qreal speed = info.attribute(QGeoPositionInfo::GroundSpeed);
+    if (::qIsNaN(speed) == false) {
+        qDebug() << "Speed: " << QString::number(speed);
+    }
+
+    if (info.timestamp().toString() != "") {
+        qDebug() << "Time: " << info.timestamp().toString(Qt::LocaleDate);
+    }
+
+    QDataStream output(_tcpSocket);
+    output << SatellitesInfo << info.coordinate().toString(QGeoCoordinate::DegreesMinutesSecondsWithHemisphere) << direction << speed << info.timestamp().toString();
+}
+
+void AppCore::onSatellitesInUseUpdated(const QList<QGeoSatelliteInfo> &satellites)
+{
+    auto count = satellites.count();
+    QDataStream output(_tcpSocket);
+    output << SatellitesInUse << count;
+    if (count >= 3) {
+        emit satellitesFound();
+    }
+    else {
+        emit satellitesNotFound();
+    }
+    qDebug() << "In use: " << satellites.count();
+    emit satellitesCount(count);
 }
 
 void AppCore::onConnectingToServer()
