@@ -32,13 +32,13 @@ AppCore::AppCore(QObject *parent) : QObject(parent)
 
     _geoPosition = QGeoPositionInfoSource::createDefaultSource(this);
     connect(_geoPosition, &QGeoPositionInfoSource::positionUpdated, this , &AppCore::onPositionUpdate);
-    _geoPosition->setUpdateInterval(3000);
+    _geoPosition->setUpdateInterval(500);
     _geoPosition->startUpdates();
 
     _geoSatellite = QGeoSatelliteInfoSource::createDefaultSource(this);
     connect(_geoSatellite, &QGeoSatelliteInfoSource::satellitesInUseUpdated, this, &AppCore::onSatellitesInUseUpdated);
     connect(_geoSatellite, SIGNAL(error(QGeoSatelliteInfoSource::Error)), this, SLOT(onSatellitesError(QGeoSatelliteInfoSource::Error)));
-    _geoSatellite->setUpdateInterval(3000);
+    _geoSatellite->setUpdateInterval(500);
     _geoSatellite->startUpdates();
 }
 
@@ -238,27 +238,19 @@ void AppCore::setTrackMarks()
 
 void AppCore::onPositionUpdate(const QGeoPositionInfo &info)
 {
-    QGeoCoordinate coordinate = info.coordinate();
-    if (coordinate.type() == QGeoCoordinate::Coordinate2D) {
-        qDebug() << "Coordinate: " << coordinate.toString(QGeoCoordinate::DegreesMinutesSecondsWithHemisphere);
-    }
-
-    qreal direction = info.attribute(QGeoPositionInfo::Direction);
-    if (::qIsNaN(direction) == false) {
-        qDebug() << "Direction: " << QString::number(direction);
-    }
-
-    qreal speed = info.attribute(QGeoPositionInfo::GroundSpeed);
-    if (::qIsNaN(speed) == false) {
-        qDebug() << "Speed: " << QString::number(speed);
-    }
-
-    if (info.timestamp().toString() != "") {
-        qDebug() << "Time: " << info.timestamp().toString(Qt::LocaleDate);
-    }
-
     QDataStream output(_tcpSocket);
-    output << SatellitesInfo << info.coordinate().toString(QGeoCoordinate::DegreesMinutesSecondsWithHemisphere) << direction << speed << info.timestamp().toString();
+    output << SatellitesInfo
+           << float(info.coordinate().latitude())
+           << float(info.coordinate().longitude())
+           << float(info.coordinate().altitude())
+           << float(info.attribute(QGeoPositionInfo::Direction))
+           << float(info.attribute(QGeoPositionInfo::GroundSpeed))
+           << info.timestamp().date().year()
+           << uchar(info.timestamp().date().month())
+           << uchar(info.timestamp().date().day())
+           << uchar(info.timestamp().time().hour())
+           << uchar(info.timestamp().time().minute())
+           << uchar(info.timestamp().time().second());
 }
 
 void AppCore::onSatellitesInUseUpdated(const QList<QGeoSatelliteInfo> &satellites)
@@ -272,7 +264,6 @@ void AppCore::onSatellitesInUseUpdated(const QList<QGeoSatelliteInfo> &satellite
     else {
         emit satellitesNotFound();
     }
-    qDebug() << "In use: " << satellites.count();
     emit satellitesCount(count);
 }
 
