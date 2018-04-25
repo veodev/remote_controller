@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>CustomRoundButton.qml</file>
         <file>images/connected.png</file>
         <file>images/decrease.png</file>
         <file>images/disconnected.png</file>
@@ -13,10 +12,9 @@
         <file>sounds/bike_bell.wav</file>
         <file>MainPage.qml</file>
         <file>OptionsPage.qml</file>
-        <file>CustomSwitch.qml</file>
         <file>CustomButton.qml</file>
-        <file>MenuPage.qml</file>
         <file>Spinner.qml</file>
         <file>images/satellite.png</file>
+        <file>MarksPage.qml</file>
     </qresource>
 </RCC>

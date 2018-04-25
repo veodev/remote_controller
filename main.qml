@@ -4,12 +4,44 @@ import QtQuick.Controls 2.2
 import QtQuick.Window 2.2
 import QtQuick.Controls.Styles 1.4
 
-Window {
+ApplicationWindow {
     id: window
     visible: true
     width: 720
     height: 1280
-    color: "#1d325e"
+
+    MainPage {id: mainPage; visible: false;}
+    MarksPage {id: marksPage; visible: false;}
+    OptionsPage {id: optionsPage; visible: false;}
+
+    header: ToolBar {
+        contentHeight: toolButton.implicitHeight
+        background: Rectangle {
+            color: "#08104d"
+        }
+
+        ToolButton {
+            id: toolButton
+            text: stackView.depth > 1 ? "\u25C0" : "\u2630"
+            font.pixelSize: Qt.application.font.pixelSize * 1.6            
+            onClicked: {
+                (stackView.depth > 1) ? stackView.pop() : drawer.open()
+            }
+        }
+
+        Label {
+            text: stackView.currentItem.title
+            anchors.centerIn: parent
+            color: "white"
+            font.pointSize: 16
+        }
+    }
+
+    StackView {
+        id: stackView
+        initialItem: mainPage
+        anchors.fill: parent
+    }
 
     Drawer {
         id: drawer
@@ -27,8 +59,8 @@ Window {
                 text: qsTr("Главная")
                 width: parent.width
                 onClicked: {
-                    drawer.close()
-                    view.currentIndex = 0
+                    stackView.pop()
+                    drawer.close()                    
                 }
             }
 
@@ -37,8 +69,8 @@ Window {
                 text: qsTr("Настройки")
                 width: parent.width
                 onClicked: {
-                    drawer.close()
-                    view.currentIndex = 1
+                    stackView.push(optionsPage)
+                    drawer.close()                    
                 }
             }
 
@@ -69,31 +101,6 @@ Window {
                 onClicked: {
                     window.close()
                 }
-            }
-        }
-    }
-
-    SwipeView {
-        id: view
-        currentIndex: 1
-        anchors.fill: parent
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.verticalCenter: parent.verticalCenter
-
-        Item {
-            MenuPage{
-                anchors.fill:parent
-            }
-        }
-
-        Item {
-            MainPage{
-                anchors.fill:parent
-            }
-        }
-        Item {
-            OptionsPage {
-                anchors.fill:parent
             }
         }
     }

@@ -3,12 +3,18 @@ import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.3
 import QtQuick.Controls.Styles 1.4
 
-Item {
-    id: optionsPage
+Page {
+//    width: 720
+//    height: 1280
+    title: qsTr("Настройки")
+
     Rectangle {
-        id: rectangle
-        color: "#1d325e"
+        id: rectangle        
         anchors.fill: parent
+        gradient: Gradient {
+            GradientStop { position: 0; color: "#08104d"}
+            GradientStop {position: 1; color: "#000000"}
+        }
 
         Text {
             id: text2

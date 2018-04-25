@@ -3,28 +3,22 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
 import QtQuick.Window 2.2
 
-Item {
+Page {
     id: item1
-    width: 720
-    height: 1200
+//    width: 720
+//    height: 1280
+    title: qsTr("Главная")
+
     Rectangle {
         id: rectangle
         width: 720
         height: 1280
-        gradient: Gradient {
-            GradientStop {
-                position: 0
-                color: "#08104d"
-            }
-
-            GradientStop {
-                position: 1
-                color: "#000000"
-            }
-        }
         anchors.rightMargin: 0
         anchors.fill: parent
-
+        gradient: Gradient {
+            GradientStop {position: 0; color: "#08104d"}
+            GradientStop {position: 1; color: "#000000"}
+        }
 
         RowLayout {
             id: statusBarRowLayout
@@ -84,10 +78,7 @@ Item {
                             to: 0;
                             duration: 1000
                         }
-
                     }
-
-
                 }
             }
 
@@ -117,8 +108,6 @@ Item {
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 source: "images/disconnected.png"
             }
-
-
         }
 
         Rectangle {
@@ -145,14 +134,13 @@ Item {
                 font.pixelSize: nextValueBackground.height/8
                 font.bold: true
             }
-
         }
 
         Button {
             id: marksButton
             y: 133
             height: item1.height/10
-            text: "Отметки"
+            text: "Отметки"            
             anchors.bottom: columnLayout.top
             anchors.bottomMargin: 70
             anchors.right: parent.right
@@ -161,10 +149,8 @@ Item {
             anchors.leftMargin: 20
             font.pointSize: 30
             Layout.minimumWidth: 220
-            Layout.fillHeight: true
-            scale: 1
-            focusPolicy: Qt.NoFocus
-
+            Layout.fillHeight: true          
+            focusPolicy: Qt.StrongFocus
             contentItem: Text {
                 text: marksButton.text
                 font.pointSize: 24
@@ -180,7 +166,7 @@ Item {
                 radius: 5
             }
             onReleased: {
-                view.currentIndex = 2
+                stackView.push(marksPage)
             }
         }
 
@@ -189,7 +175,7 @@ Item {
             y: 915
             width: (setButton.width / 2) - 20
             height: item1.height/10
-            text: " -"
+            text: "-"
             anchors.bottom: setButton.top
             anchors.bottomMargin: 20
             anchors.left: parent.left
@@ -206,8 +192,7 @@ Item {
                 font.pointSize: 24
                 fontSizeMode: Text.Fit
                 elide: Text.ElideNone
-                textFormat: Text.PlainText
-                //                        font.pointSize: 30
+                textFormat: Text.PlainText                
                 font.bold: true
             }
 
@@ -221,7 +206,6 @@ Item {
             onClicked: {
                 backend.prevTrackmark()
             }
-
         }
 
         Button {
@@ -360,9 +344,6 @@ Item {
                 font.pixelSize: item1.height / 20
             }
         }
-
-
-
     }
 
     Connections {
@@ -370,27 +351,21 @@ Item {
         onDoSocketConnected: {
             connectionStatusImage.source = "images/connected.png"
         }
-
         onDoSocketDisconnected: {
             connectionStatusImage.source = "images/disconnected.png"
         }
-
         onDoCurrentMeter: {
             mValue.text = m
         }
-
         onDoStartRegistration: {
             registrationStatusImage.source = "images/start_rec.png"
         }
-
         onDoStopRegistration: {
             registrationStatusImage.source = "images/stop_rec.png"
         }
-
         onDoIncrease: {
             registrationOptionImage.source = "images/increase.png"
         }
-
         onDoDecrease: {
             registrationOptionImage.source = "images/decrease.png"
         }
@@ -417,5 +392,3 @@ Item {
         }
     }
 }
-
-
