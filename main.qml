@@ -3,12 +3,15 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
 import QtQuick.Window 2.2
 import QtQuick.Controls.Styles 1.4
+import QtQuick.Dialogs 1.2
 
 ApplicationWindow {
     id: window
     visible: true
     width: 720
     height: 1280
+
+    property bool isClose: false
 
     MainPage {id: mainPage; visible: false;}
     MarksPage {id: marksPage; visible: false;}
@@ -99,9 +102,31 @@ ApplicationWindow {
                 text: qsTr("Выход")
                 width: parent.width
                 onClicked: {
+                    isClose = true
                     window.close()
                 }
             }
         }
+    }
+
+    MessageDialog {
+        title: "Выйти из приложения?"
+        id: dialog
+        icon: StandardIcon.Question
+        standardButtons: StandardButton.Yes | StandardButton.No
+        onYes: {
+            isClose = true
+            window.close()
+        }
+        onNo: dialog.close()
+    }
+
+    onClosing: {
+        close.accepted = false
+        if (isClose === false) {
+            dialog.open()
+        }
+        else
+            close.accepted = true
     }
 }
