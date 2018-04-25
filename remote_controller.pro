@@ -29,7 +29,8 @@ SOURCES += main.cpp \
 RESOURCES += qml.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
-QML_IMPORT_PATH = /home/veo/Qt/5.11.0/gcc_64/qml
+QML_IMPORT_PATH += /home/veo/Qt/5.11.0/gcc_64/qml \
+                   /home/veo/Qt/5.11.0/android_armv7
 
 # Additional import path used to resolve QML modules just for Qt Quick Designer
 QML_DESIGNER_IMPORT_PATH =
