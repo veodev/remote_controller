@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QTcpSocket>
+#include <QDataStream>
 #include <QMediaPlayer>
 #include <QTimer>
 #include <QGeoPositionInfoSource>
@@ -11,7 +12,8 @@
 #include "tmrussian.h"
 
 enum Headers {
-    StartRegistration,
+    UnknownHeader = -1,
+    StartRegistration = 1,
     StopRegistration,
     CurrentMeter,
     CurrentSpeed,
@@ -19,7 +21,13 @@ enum Headers {
     Mark,
     UpdateState,
     SatellitesInfo,
-    SatellitesInUse
+    SatellitesInUse,
+    BridgesList,
+    PlatformsList,
+    MiscList,
+    BridgesItem,
+    PlatformsItem,
+    MiscItem
 };
 
 class AppCore : public QObject
@@ -42,6 +50,7 @@ public:
 
     Q_INVOKABLE void startRegistration();
     Q_INVOKABLE void stopRegistration();
+    Q_INVOKABLE void marksSelected(QString name);
 
 private:
 #ifdef ANDROID
@@ -50,6 +59,10 @@ private:
     void updateState();
     void updateTrackMarks();
     void updateCurrentCoordinate();
+
+    void updateBridgesModel();
+    void updatePlatformsModel();
+    void updateMiscModel();
 
 signals:
     void doSocketConnected();
@@ -72,6 +85,14 @@ signals:
     void satellitesNotFound();
     void satellitesCount(int count);
 
+    void clearBridgesModel();
+    void clearPlatformsModel();
+    void clearMiscModel();
+
+    void addItemToBridgesModel(QString name);
+    void addItemToPlatformsModel(QString name);
+    void addItemToMiscModel(QString name);
+
 public slots:
     void onConnectingToServer();
     void onDisconnectingToServer();
@@ -87,6 +108,7 @@ public slots:
 
 private:
     QTcpSocket* _tcpSocket;
+    QDataStream _dataStream;
     QMediaPlayer* _mediaPlayer;
     TMRussian _trackMarks;
     int _km;
@@ -100,6 +122,15 @@ private:
     QString _ipAddress;
     QGeoPositionInfoSource* _geoPosition;
     QGeoSatelliteInfoSource* _geoSatellite;
+    QStringList _bridgesList;
+    QStringList _platformsList;
+    QStringList _miscList;
+
+    Headers _currentHeader;
+    int _currentCount;
+    int _currentCountStrings;
+    QString _currentString;
+    bool _isFinishReadData;
 };
 
 #endif // APPCORE_H

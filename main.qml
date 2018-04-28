@@ -25,8 +25,9 @@ ApplicationWindow {
 
         ToolButton {
             id: toolButton
+            implicitWidth: 40
             text: stackView.depth > 1 ? "\u25C0" : "\u2630"
-            font.pixelSize: Qt.application.font.pixelSize * 1.6            
+            font.pixelSize: Qt.application.font.pixelSize * 1.6
             onClicked: {
                 (stackView.depth > 1) ? stackView.pop() : drawer.open()
             }
@@ -110,7 +111,7 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        title: "Выйти из приложения?"
+        text: "Выйти из приложения?"
         id: dialog
         icon: StandardIcon.Question
         standardButtons: StandardButton.Yes | StandardButton.No

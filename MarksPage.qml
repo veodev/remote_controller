@@ -5,9 +5,12 @@ import QtQuick.Controls.Styles 1.4
 import QtQuick.Dialogs 1.2
 
 Page {
-//    width: 720
-//    height: 1280
+    id: marksPage
+    width: 720
+    height: 1280
     title: qsTr("Отметки")
+
+    //    signal marksSelected(String name)
 
     Rectangle {
         id: rectangle
@@ -17,37 +20,192 @@ Page {
             GradientStop {position: 1; color: "#000000"}
         }
 
-        Text {
-            id: text1
-            x: 252
-            y: 31
-            color: "#ffffff"
-            text: qsTr("Служебные отметки")
-            font.pixelSize: 20
+        Button {
+            id: startSwitchButton
+            text: "Начало стрелки"
+            anchors.right: endSwitchButton.left
+            anchors.rightMargin: 20
+            anchors.left: parent.left
+            anchors.leftMargin: 20
+            anchors.top: parent.top
+            anchors.topMargin: 20
+            height: window.height/10
+        }
+
+        Button {
+            id: endSwitchButton
+            x: 401
+            text: "Конец стрелки"
+            anchors.top: parent.top
+            anchors.topMargin: 20
+            anchors.right: parent.right
+            anchors.rightMargin: 20
+            width: (window.width / 2) - 20
+            height: window.height/10
         }
 
         TabBar {
             id: tabBar
-            x: 155
-            y: 137
-            width: 348
-            height: 261
-            position: TabBar.Footer
-            currentIndex: -1
+            position: TabBar.Header
+            anchors.top: startSwitchButton.bottom
+            anchors.topMargin: 40
+            anchors.right: parent.right
+            anchors.rightMargin: 20
+            anchors.left: parent.left
+            anchors.leftMargin: 20
 
             TabButton {
-                id: tabButton
-                text: qsTr("Tab Button")
+                id: bridgesTabButton
+                text: qsTr("Мосты")
+                onPressed: {
+                    bridgesItem.visible = true
+                    platformsItem.visible = false
+                    miscItem.visible = false
+                }
             }
 
             TabButton {
-                id: tabButton1
-                text: qsTr("Tab Button")
+                id: platformsTabButton
+                x: 201
+                y: 0
+                text: qsTr("Платформы")
+                onPressed: {
+                    bridgesItem.visible = false
+                    platformsItem.visible = true
+                    miscItem.visible = false
+                }
+            }
+
+            TabButton {
+                id: miscTabButton
+                text: qsTr("Прочие")
+                onPressed: {
+                    bridgesItem.visible = false
+                    platformsItem.visible = false
+                    miscItem.visible = true
+                }
+            }
+
+        }
+
+        StackLayout {
+            id: stackLayout
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 20
+            anchors.right: parent.right
+            anchors.rightMargin: 20
+            anchors.left: parent.left
+            anchors.leftMargin: 20
+            anchors.top: tabBar.bottom
+            anchors.topMargin: 10
+            currentIndex: tabBar.currentIndex
+
+            Item {
+                id: bridgesItem
+                ListView {
+                    id: bridgesList
+                    anchors.fill: parent
+                    delegate: Item {
+                        id: bridgeslistItem
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        height: window.height/10
+
+                        Button {
+                            anchors.fill: parent
+                            anchors.margins: 10
+                            text: buttonText
+                            onReleased: {
+                                backend.marksSelected(Button.text)
+                            }
+                        }
+                    }
+                    model: ListModel {
+                        id: bridgesListModel
+                    }
+                }
+            }
+            Item {
+                id: platformsItem
+                ListView {
+                    id: platformsList
+                    anchors.fill: parent
+                    delegate: Item {
+                        id: platformslistItem
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        height: window.height/10
+
+                        Button {
+                            anchors.fill: parent
+                            anchors.margins: 10
+                            text: buttonText
+                            onReleased: {
+                                marksPage.marksSelected(Button.text)
+                            }
+                        }
+                    }
+                    model: ListModel {
+                        id: platformsListModel
+                    }
+                }
+            }
+            Item {
+                id: miscItem
+                ListView {
+                    id: miscList
+                    anchors.fill: parent
+                    delegate: Item {
+                        id: miscListItem
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        height: window.height/10
+
+                        Button {
+                            anchors.fill: parent
+                            anchors.margins: 10
+                            text: buttonText
+                            onReleased: {
+
+                            }
+                        }
+                    }
+                    model: ListModel {
+                        id: miscListModel
+                    }
+                }
             }
         }
     }
 
     Keys.onBackPressed: {
-        stackView.pop()        
+        stackView.pop()
+    }
+    Connections {
+        target: backend
+        onClearBridgesModel: {
+            bridgesListModel.clear()
+            console.log("Clear bridges model")
+        }
+        onClearPlatformsModel: {
+            platformsListModel.clear()
+            console.log("Clear platforms model")
+        }
+        onClearMiscModel: {
+            miscListModel.clear()
+            console.log("Clear misc model")
+        }
+        onAddItemToBridgesModel: {
+            bridgesListModel.append({buttonText: name})
+            console.log("Add to bridges: ", name)
+        }
+        onAddItemToPlatformsModel: {
+            platformsListModel.append({buttonText: name})
+            console.log("Add to platforms: ", name)
+        }
+        onAddItemToMiscModel: {
+            miscListModel.append({buttonText: name})
+            console.log("Add to misc: ", name)
+        }
     }
 }
