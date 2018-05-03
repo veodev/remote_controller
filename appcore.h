@@ -28,7 +28,9 @@ enum Headers {
     BridgesItem,
     PlatformsItem,
     MiscItem,
-    Ping
+    Ping,
+    StartSwitch,
+    EndSwitch
 };
 
 class AppCore : public QObject
@@ -51,7 +53,11 @@ public:
 
     Q_INVOKABLE void startRegistration();
     Q_INVOKABLE void stopRegistration();
-    Q_INVOKABLE void marksSelected(QString name);
+    Q_INVOKABLE void bridgeSelected(QString name);
+    Q_INVOKABLE void platformSelected(QString name);
+    Q_INVOKABLE void miscSelected(QString name);
+    Q_INVOKABLE void startSwitch();
+    Q_INVOKABLE void endSwitch();
 
 private:
 #ifdef ANDROID

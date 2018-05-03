@@ -10,8 +10,6 @@ Page {
     height: 1280
     title: qsTr("Отметки")
 
-    //    signal marksSelected(String name)
-
     Rectangle {
         id: rectangle
         anchors.fill: parent
@@ -118,7 +116,7 @@ Page {
                             anchors.margins: 10
                             text: buttonText
                             onReleased: {
-                                backend.marksSelected(buttonText)
+                                backend.bridgeSelected(buttonText)
                             }
                         }
                     }
@@ -144,7 +142,7 @@ Page {
                             anchors.margins: 10
                             text: buttonText
                             onReleased: {
-                                backend.marksSelected(buttonText)
+                                backend.platformSelected(buttonText)
                             }
                         }
                     }
@@ -170,7 +168,7 @@ Page {
                             anchors.margins: 10
                             text: buttonText
                             onReleased: {
-                                backend.marksSelected(buttonText)
+                                backend.miscSelected(buttonText)
                             }
                         }
                     }

@@ -99,9 +99,39 @@ void AppCore::stopRegistration()
     _dataStream << StopRegistration;
 }
 
-void AppCore::marksSelected(QString name)
+void AppCore::bridgeSelected(QString name)
 {
-    qDebug() << name;
+    if (_tcpSocket!= Q_NULLPTR) {
+        _dataStream << BridgesItem << _bridgesList.indexOf(name);
+    }
+}
+
+void AppCore::platformSelected(QString name)
+{
+    if (_tcpSocket!= Q_NULLPTR) {
+        _dataStream << PlatformsItem << _platformsList.indexOf(name);
+    }
+}
+
+void AppCore::miscSelected(QString name)
+{
+    if (_tcpSocket!= Q_NULLPTR) {
+        _dataStream << MiscItem << _miscList.indexOf(name);
+    }
+}
+
+void AppCore::startSwitch()
+{
+    if (_tcpSocket!= Q_NULLPTR) {
+        _dataStream << StartSwitch;
+    }
+}
+
+void AppCore::endSwitch()
+{
+    if (_tcpSocket!= Q_NULLPTR) {
+        _dataStream << EndSwitch;
+    }
 }
 
 void AppCore::updateState()
@@ -200,8 +230,7 @@ void AppCore::readItem(Headers header, QStringList& list)
             }
             _isFinishReadData = true;
             _currentCount = -1;
-            list.append(QString::fromUtf8(_currentData));
-            qDebug() << QString::fromUtf8(_currentData);
+            list.append(QString::fromUtf8(_currentData));            
             --_currentCountStrings;
 
             if (_currentCountStrings == 0) {
@@ -428,8 +457,7 @@ void AppCore::onSocketReadyRead()
         _dataStream >> _currentCountStrings;
         if (_currentCountStrings > 0) {
             _isReadList = true;
-        }
-        qDebug() << "Count list items: " << _currentCountStrings;
+        }        
         break;    
     case PlatformsList:        
         _platformsList.clear();
@@ -437,8 +465,7 @@ void AppCore::onSocketReadyRead()
         _dataStream >> _currentCountStrings;
         if (_currentCountStrings > 0) {
             _isReadList = true;
-        }
-        qDebug() << "Count list items: " << _currentCountStrings;
+        }        
         break;
     case MiscList:        
         _miscList.clear();
