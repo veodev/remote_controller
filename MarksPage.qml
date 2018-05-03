@@ -20,9 +20,10 @@ Page {
             GradientStop {position: 1; color: "#000000"}
         }
 
-        Button {
+        CustomButton {
             id: startSwitchButton
-            text: "Начало стрелки"
+            text: "Начало\n стрелки"
+            spacing: 5
             anchors.right: endSwitchButton.left
             anchors.rightMargin: 20
             anchors.left: parent.left
@@ -32,10 +33,10 @@ Page {
             height: window.height/10
         }
 
-        Button {
+        CustomButton {
             id: endSwitchButton
             x: 401
-            text: "Конец стрелки"
+            text: "Конец\n стрелки"
             anchors.top: parent.top
             anchors.topMargin: 20
             anchors.right: parent.right
@@ -102,6 +103,7 @@ Page {
 
             Item {
                 id: bridgesItem
+                visible: false
                 ListView {
                     id: bridgesList
                     anchors.fill: parent
@@ -111,12 +113,12 @@ Page {
                         anchors.right: parent.right
                         height: window.height/10
 
-                        Button {
+                        CustomButton {
                             anchors.fill: parent
                             anchors.margins: 10
                             text: buttonText
                             onReleased: {
-                                backend.marksSelected(Button.text)
+                                backend.marksSelected(buttonText)
                             }
                         }
                     }
@@ -127,6 +129,7 @@ Page {
             }
             Item {
                 id: platformsItem
+                visible: false
                 ListView {
                     id: platformsList
                     anchors.fill: parent
@@ -136,12 +139,12 @@ Page {
                         anchors.right: parent.right
                         height: window.height/10
 
-                        Button {
+                        CustomButton {
                             anchors.fill: parent
                             anchors.margins: 10
                             text: buttonText
                             onReleased: {
-                                marksPage.marksSelected(Button.text)
+                                backend.marksSelected(buttonText)
                             }
                         }
                     }
@@ -152,6 +155,7 @@ Page {
             }
             Item {
                 id: miscItem
+                visible: false
                 ListView {
                     id: miscList
                     anchors.fill: parent
@@ -161,12 +165,12 @@ Page {
                         anchors.right: parent.right
                         height: window.height/10
 
-                        Button {
+                        CustomButton {
                             anchors.fill: parent
                             anchors.margins: 10
                             text: buttonText
                             onReleased: {
-
+                                backend.marksSelected(buttonText)
                             }
                         }
                     }

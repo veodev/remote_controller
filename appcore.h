@@ -27,7 +27,8 @@ enum Headers {
     MiscList,
     BridgesItem,
     PlatformsItem,
-    MiscItem
+    MiscItem,
+    Ping
 };
 
 class AppCore : public QObject
@@ -63,6 +64,7 @@ private:
     void updateBridgesModel();
     void updatePlatformsModel();
     void updateMiscModel();
+    void readItem(Headers header, QStringList& list);
 
 signals:
     void doSocketConnected();
@@ -122,6 +124,7 @@ private:
     QString _ipAddress;
     QGeoPositionInfoSource* _geoPosition;
     QGeoSatelliteInfoSource* _geoSatellite;
+
     QStringList _bridgesList;
     QStringList _platformsList;
     QStringList _miscList;
@@ -130,7 +133,9 @@ private:
     int _currentCount;
     int _currentCountStrings;
     QString _currentString;
+    QByteArray _currentData;
     bool _isFinishReadData;
+    bool _isReadList;
 };
 
 #endif // APPCORE_H
