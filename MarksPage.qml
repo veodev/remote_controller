@@ -56,7 +56,7 @@ Page {
             TabButton {
                 id: bridgesTabButton
                 text: qsTr("Мосты")
-                onPressed: {
+                onReleased: {
                     bridgesItem.visible = true
                     platformsItem.visible = false
                     miscItem.visible = false
@@ -68,7 +68,7 @@ Page {
                 x: 201
                 y: 0
                 text: qsTr("Платформы")
-                onPressed: {
+                onReleased: {
                     bridgesItem.visible = false
                     platformsItem.visible = true
                     miscItem.visible = false
@@ -78,7 +78,7 @@ Page {
             TabButton {
                 id: miscTabButton
                 text: qsTr("Прочие")
-                onPressed: {
+                onReleased: {
                     bridgesItem.visible = false
                     platformsItem.visible = false
                     miscItem.visible = true
