@@ -6,8 +6,8 @@ import QtQuick.Dialogs 1.2
 
 Page {
     id: marksPage
-    width: 720
-    height: 1280
+//    width: 720
+//    height: 1280
     title: qsTr("Отметки")
 
     Rectangle {

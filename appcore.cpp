@@ -91,12 +91,16 @@ void AppCore::setSoundStatus(bool isEnabled)
 
 void AppCore::startRegistration()
 {    
-    _dataStream << StartRegistration;
+    if (_tcpSocket!= Q_NULLPTR) {
+        _dataStream << StartRegistration;
+    }
 }
 
 void AppCore::stopRegistration()
 {    
-    _dataStream << StopRegistration;
+    if (_tcpSocket!= Q_NULLPTR) {
+        _dataStream << StopRegistration;
+    }
 }
 
 void AppCore::bridgeSelected(QString name)

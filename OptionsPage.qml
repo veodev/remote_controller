@@ -5,8 +5,8 @@ import QtQuick.Controls.Styles 1.4
 
 Page {
     id: page
-    width: 720
-    height: 1280
+//    width: 720
+//    height: 1280
     title: qsTr("Настройки")
 
     Rectangle {
