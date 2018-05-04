@@ -35,9 +35,7 @@ enum Headers {
 
 class AppCore : public QObject
 {
-    Q_OBJECT
-    Q_PROPERTY(bool _isSoundEnabled READ getSoundStatus WRITE setSoundStatus NOTIFY soundStatusChanged)
-    Q_PROPERTY(QString _ipAddress READ getIpAddress WRITE setIpAddress NOTIFY ipAddressChanged)
+    Q_OBJECT    
 public:
     explicit AppCore(QObject *parent = nullptr);
 
@@ -86,9 +84,6 @@ signals:
     void doNextTrackMarks(QString value);
     void doCurrentTrackMarks(QString value);
 
-    void soundStatusChanged();
-    void ipAddressChanged();
-
     void satellitesFound();
     void satellitesNotFound();
     void satellitesCount(int count);
@@ -113,6 +108,20 @@ public slots:
     void onPositionUpdate(const QGeoPositionInfo& info);
     void onSatellitesInUseUpdated(const QList<QGeoSatelliteInfo>& satellites);
     void onSatellitesError(QGeoSatelliteInfoSource::Error satelliteError);
+
+    void startWork();
+    void initMedia();
+    void initGeo();
+    void onNextTrackMark();
+    void onPrevTrackMark();
+    void onSetTrackMark();
+    void onStartRegistration();
+    void onStopRegistration();
+    void onStartSwitch();
+    void onEndSwitch();
+    void onBridgeSelected(QString name);
+    void onPlatformSelected(QString name);
+    void onMiscSelected(QString name);
 
 private:
     QTcpSocket* _tcpSocket;

@@ -88,6 +88,25 @@ Page {
                 height: 48
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 source: "images/stop_rec.png"
+
+                SequentialAnimation {
+                    id: registrationAnimation
+                    running: false
+                    loops: Animation.Infinite
+                    OpacityAnimator {
+                        target: registrationStatusImage
+                        from: 0;
+                        to: 1;
+                        duration: 1000
+                    }
+
+                    OpacityAnimator {
+                        target: registrationStatusImage
+                        from: 1;
+                        to: 0;
+                        duration: 1000
+                    }
+                }
             }
 
             Image {
@@ -128,7 +147,7 @@ Page {
                 anchors.centerIn: parent
                 width: nextValue.height
                 color: "#e90000"
-                text: qsTr("6000/6001 км")
+                text: qsTr("0000/0000 км")
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
                 font.pixelSize: nextValueBackground.height/8
@@ -204,7 +223,7 @@ Page {
                 anchors.fill:parent
             }
             onClicked: {
-                backend.prevTrackmark()
+                backend.prevTrackMark()
             }
         }
 
@@ -245,7 +264,7 @@ Page {
                 anchors.fill:parent
             }
             onClicked: {
-                backend.nextTrackmark()
+                backend.nextTrackMark()
             }
         }
 
@@ -282,7 +301,7 @@ Page {
             }
 
             onReleased: {
-                backend.setTrackMarks()
+                backend.setTrackMark()
             }
         }
 
@@ -359,9 +378,12 @@ Page {
         }
         onDoStartRegistration: {
             registrationStatusImage.source = "images/start_rec.png"
+            registrationAnimation.start()
         }
         onDoStopRegistration: {
+            registrationAnimation.stop()
             registrationStatusImage.source = "images/stop_rec.png"
+            registrationStatusImage.opacity = 1
         }
         onDoIncrease: {
             registrationOptionImage.source = "images/increase.png"
@@ -373,21 +395,21 @@ Page {
             (speed < 10) ? speedValue.text = Number(speed).toPrecision(2)
                          : speedValue.text = Number(speed).toPrecision(3)
         }
-        onDoCurrentTrackMarks: {
+        onDoCurrentTrackMark: {
             currentCoordinate.text = value
         }
         onDoNextTrackMarks: {
-            nextValue.text = value
+            nextValue.text = value            
         }
-        onSatellitesFound: {
+        onDoSatellitesFound: {
             sateliteAnimation.stop()
             satellitesImage.opacity = 1
         }
-        onSatellitesNotFound: {
+        onDoSatellitesNotFound: {
             sateliteAnimation.start()
             satellitesCount.text = 0
         }
-        onSatellitesCount: {
+        onDoSatellitesCount: {
             satellitesCount.text = count
         }
     }

@@ -28,24 +28,9 @@ AppCore::AppCore(QObject *parent) : QObject(parent)
 {
 #ifdef ANDROID
     keepScreenOn(true);
-#endif
-    _mediaPlayer = new QMediaPlayer(this);
-    _mediaPlayer->setMedia(QUrl("qrc:/sounds/bike_bell.wav"));
-    _mediaPlayer->setVolume(100);
+#endif    
     setIpAddress(QSettings().value("IpAddress").toString());
     setSoundStatus(QSettings().value("IsSoundEnable").toBool());
-    onConnectingToServer();
-
-    _geoPosition = QGeoPositionInfoSource::createDefaultSource(this);
-    connect(_geoPosition, &QGeoPositionInfoSource::positionUpdated, this , &AppCore::onPositionUpdate);
-    _geoPosition->setUpdateInterval(500);
-    _geoPosition->startUpdates();
-
-    _geoSatellite = QGeoSatelliteInfoSource::createDefaultSource(this);
-    connect(_geoSatellite, &QGeoSatelliteInfoSource::satellitesInUseUpdated, this, &AppCore::onSatellitesInUseUpdated);
-    connect(_geoSatellite, SIGNAL(error(QGeoSatelliteInfoSource::Error)), this, SLOT(onSatellitesError(QGeoSatelliteInfoSource::Error)));
-    _geoSatellite->setUpdateInterval(500);
-    _geoSatellite->startUpdates();
 }
 
 int AppCore::getKm()
@@ -78,7 +63,6 @@ void AppCore::setIpAddress(QString ipAddress)
     _ipAddress = ipAddress;
     QSettings settings;
     settings.setValue("IpAddress", ipAddress);
-    emit ipAddressChanged();
 }
 
 void AppCore::setSoundStatus(bool isEnabled)
@@ -86,7 +70,6 @@ void AppCore::setSoundStatus(bool isEnabled)
     _isSoundEnabled = isEnabled;
     QSettings settings;
     settings.setValue("IsSoundEnable", isEnabled);
-    emit soundStatusChanged();
 }
 
 void AppCore::startRegistration()
@@ -397,6 +380,87 @@ void AppCore::onSatellitesError(QGeoSatelliteInfoSource::Error satelliteError)
         break;
     }
     qDebug() << satelliteError;
+}
+
+void AppCore::startWork()
+{
+    onConnectingToServer();
+    qDebug() << "AppCore started!";
+    initMedia();
+    initGeo();
+}
+
+void AppCore::initMedia()
+{
+    _mediaPlayer = new QMediaPlayer(this);
+    _mediaPlayer->setMedia(QUrl("qrc:/sounds/bike_bell.wav"));
+    _mediaPlayer->setVolume(100);
+    qDebug() << "Media inited!";
+}
+
+void AppCore::initGeo()
+{
+    _geoPosition = QGeoPositionInfoSource::createDefaultSource(this);
+    connect(_geoPosition, &QGeoPositionInfoSource::positionUpdated, this , &AppCore::onPositionUpdate);
+    _geoPosition->setUpdateInterval(500);
+    _geoPosition->startUpdates();
+
+    _geoSatellite = QGeoSatelliteInfoSource::createDefaultSource(this);
+    connect(_geoSatellite, &QGeoSatelliteInfoSource::satellitesInUseUpdated, this, &AppCore::onSatellitesInUseUpdated);
+    connect(_geoSatellite, SIGNAL(error(QGeoSatelliteInfoSource::Error)), this, SLOT(onSatellitesError(QGeoSatelliteInfoSource::Error)));
+    _geoSatellite->setUpdateInterval(500);
+    _geoSatellite->startUpdates();
+    qDebug() << "Geo inited!";
+}
+
+void AppCore::onNextTrackMark()
+{
+    nextTrackmark();
+}
+
+void AppCore::onPrevTrackMark()
+{
+    prevTrackmark();
+}
+
+void AppCore::onSetTrackMark()
+{
+    setTrackMarks();
+}
+
+void AppCore::onStartRegistration()
+{
+    startRegistration();
+}
+
+void AppCore::onStopRegistration()
+{
+    stopRegistration();
+}
+
+void AppCore::onStartSwitch()
+{
+    startSwitch();
+}
+
+void AppCore::onEndSwitch()
+{
+    endSwitch();
+}
+
+void AppCore::onBridgeSelected(QString name)
+{
+    bridgeSelected(name);
+}
+
+void AppCore::onPlatformSelected(QString name)
+{
+    platformSelected(name);
+}
+
+void AppCore::onMiscSelected(QString name)
+{
+    miscSelected(name);
 }
 
 void AppCore::onConnectingToServer()

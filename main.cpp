@@ -5,6 +5,7 @@
 #include <QQmlContext>
 
 #include "appcore.h"
+#include "controller.h"
 
 int main(int argc, char *argv[])
 {
@@ -12,12 +13,16 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
     QGuiApplication app(argc, argv);
-    AppCore appCore;
+//    AppCore appCore;
+    Controller controller;
     QQmlApplicationEngine engine;
     QQmlContext* context = engine.rootContext();
-    context->setContextProperty("backend", &appCore);
+//    context->setContextProperty("backend", &appCore);
+    context->setContextProperty("backend", &controller);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
-    if (engine.rootObjects().isEmpty())
+    if (engine.rootObjects().isEmpty()) {
         return -1;
-    return app.exec();
+    }
+    int rc = app.exec();
+    return rc;
 }

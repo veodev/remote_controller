@@ -185,27 +185,27 @@ Page {
     }
     Connections {
         target: backend
-        onClearBridgesModel: {
+        onDoClearBridgesModel: {
             bridgesListModel.clear()
             console.log("Clear bridges model")
         }
-        onClearPlatformsModel: {
+        onDoClearPlatformsModel: {
             platformsListModel.clear()
             console.log("Clear platforms model")
         }
-        onClearMiscModel: {
+        onDoClearMiscModel: {
             miscListModel.clear()
             console.log("Clear misc model")
         }
-        onAddItemToBridgesModel: {
+        onDoAddItemToBridgesModel: {
             bridgesListModel.append({buttonText: name})
             console.log("Add to bridges: ", name)
         }
-        onAddItemToPlatformsModel: {
+        onDoAddItemToPlatformsModel: {
             platformsListModel.append({buttonText: name})
             console.log("Add to platforms: ", name)
         }
-        onAddItemToMiscModel: {
+        onDoAddItemToMiscModel: {
             miscListModel.append({buttonText: name})
             console.log("Add to misc: ", name)
         }

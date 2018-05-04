@@ -24,7 +24,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp \
     appcore.cpp \
     tmrussian.cpp \
-    trackmarks.cpp
+    trackmarks.cpp \
+    controller.cpp
 
 RESOURCES += qml.qrc
 
@@ -43,7 +44,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     appcore.h \
     tmrussian.h \
-    trackmarks.h
+    trackmarks.h \
+    controller.h
 
 FORMS +=
 
