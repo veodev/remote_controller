@@ -67,6 +67,9 @@ signals:
     void doCurrentMeter(int m);
     void doSoundStatusChanged();
     void doIpAddressChanged();
+    void doSetSoundStatus(bool isEnabled);
+    void doSetIpAddress(QString ipAddress);
+    void doConnectToServer();
 
 public slots:
 

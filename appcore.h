@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <QGeoPositionInfoSource>
 #include <QGeoSatelliteInfoSource>
+#include <QTimer>
 
 #include "tmrussian.h"
 
@@ -43,12 +44,6 @@ public:
     int getPk();
     int getM();
 
-    QString & getIpAddress();
-    void setIpAddress(QString ipAddress);
-
-    bool getSoundStatus();
-    void setSoundStatus(bool isEnabled);
-
     Q_INVOKABLE void startRegistration();
     Q_INVOKABLE void stopRegistration();
     Q_INVOKABLE void bridgeSelected(QString name);
@@ -58,11 +53,9 @@ public:
     Q_INVOKABLE void endSwitch();
 
 private:
-#ifdef ANDROID
-    void keepScreenOn(bool on);
-#endif
-    void updateState();
+    void updateState();    
     void updateTrackMarks();
+    void updateMeters();
     void updateCurrentCoordinate();
 
     void updateBridgesModel();
@@ -122,12 +115,16 @@ public slots:
     void onBridgeSelected(QString name);
     void onPlatformSelected(QString name);
     void onMiscSelected(QString name);
+    void onSetIpAddress(QString ipAddress);
+    void onSetSoundStatus(bool isEnabled);
+    void onConnectToServer();
 
 private:
     QTcpSocket* _tcpSocket;
     QDataStream _dataStream;
     QMediaPlayer* _mediaPlayer;
     TMRussian _trackMarks;
+    TMRussian _tmpTrackMarks;
     int _km;
     int _pk;
     int _m;
@@ -150,7 +147,7 @@ private:
     QString _currentString;
     QByteArray _currentData;
     bool _isFinishReadData;
-    bool _isReadList;
+    bool _isReadList;    
 };
 
 #endif // APPCORE_H

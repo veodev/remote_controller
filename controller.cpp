@@ -19,44 +19,38 @@ Controller::Controller(QObject *parent) : QObject(parent)
     setIpAddress(QSettings().value("IpAddress").toString());
     setSoundStatus(QSettings().value("IsSoundEnable").toBool());
 
-
     _appCoreThread->setObjectName("appCoreThread");
     _appCore = new AppCore();
     connect(_appCoreThread, &QThread::started, _appCore, &AppCore::startWork);
-
     connect(_appCore, &AppCore::doSocketConnected, this, &Controller::onAppCoreConnected);
     connect(_appCore, &AppCore::doSocketDisconnected, this, &Controller::onAppCoreDisconnected);
-
     connect(_appCore, &AppCore::doIncrease, this, &Controller::onAppCoreIncrease);
     connect(_appCore, &AppCore::doDecrease, this, &Controller::onAppCoreDecrease);
-
     connect(_appCore, &AppCore::doStartRegistration, this, &Controller::onAppCoreStartRegistration);
     connect(_appCore, &AppCore::doStopRegistration, this, &Controller::onAppCoreStopRegistration);
-
     connect(_appCore, &AppCore::doNextTrackMarks, this, &Controller::onAppCoreNextTrackMark);
-
     connect(_appCore, &AppCore::clearBridgesModel, this, &Controller::onAppCoreClearBridgesModel);
     connect(_appCore, &AppCore::clearPlatformsModel, this, &Controller::onAppCoreClearPlatformsModel);
     connect(_appCore, &AppCore::clearMiscModel, this, &Controller::onAppCoreClearMiscModel);
     connect(_appCore, &AppCore::addItemToBridgesModel, this, &Controller::onAppCoreAddItemToBridgesModel);
     connect(_appCore, &AppCore::addItemToPlatformsModel, this, &Controller::onAppCoreAddItemToPlatformsModel);
     connect(_appCore, &AppCore::addItemToMiscModel, this, &Controller::onAppCoreAddItemToMiscModel);
-
     connect(_appCore, &AppCore::satellitesFound, this, &Controller::onSatellitesFound);
     connect(_appCore, &AppCore::satellitesNotFound, this, &Controller::onSatellitesNotFound);
     connect(_appCore, &AppCore::satellitesCount, this, &Controller::onSatellitesCount);
-
     connect(_appCore, &AppCore::doCurrentMeter, this, &Controller::onAppCoreCurrentMeter);
     connect(_appCore, &AppCore::doCurrentTrackMarks, this, &Controller::onAppCoreCurrentTrackMark);
     connect(_appCore, &AppCore::doCurrentSpeed, this, &Controller::onAppCoreCurrentSpeed);
 
+    connect(this, &Controller::doSetSoundStatus, _appCore, &AppCore::onSetSoundStatus);
+    connect(this, &Controller::doSetIpAddress, _appCore, &AppCore::onSetIpAddress);
+    connect(this, &Controller::doConnectToServer, _appCore, &AppCore::onConnectToServer);
 
     connect(this, &Controller::doNextTrackMark, _appCore, &AppCore::onNextTrackMark);
     connect(this, &Controller::doPrevTrackMark, _appCore, &AppCore::onPrevTrackMark);
     connect(this, &Controller::doSetTrackMark, _appCore, &AppCore::onSetTrackMark);
     connect(this, &Controller::doStartRegistration, _appCore, &AppCore::onStartRegistration);
     connect(this, &Controller::doStopRegistration, _appCore, &AppCore::onStopRegistration);
-
     connect(this, &Controller::doStartSwitch, _appCore, &AppCore::onStartSwitch);
     connect(this, &Controller::doEndSwitch, _appCore, &AppCore::onEndSwitch);
     connect(this, &Controller::doBridgeSelected, _appCore, &AppCore::onBridgeSelected);
@@ -65,43 +59,37 @@ Controller::Controller(QObject *parent) : QObject(parent)
 
     _appCore->moveToThread(_appCoreThread);
     _appCoreThread->start();
+    emit doSetSoundStatus(_isSoundEnabled);
+    emit doConnectToServer();
 }
 
 Controller::~Controller()
 {
     disconnect(_appCore, &AppCore::doSocketConnected, this, &Controller::onAppCoreConnected);
     disconnect(_appCore, &AppCore::doSocketDisconnected, this, &Controller::onAppCoreDisconnected);
-
     disconnect(_appCore, &AppCore::doIncrease, this, &Controller::onAppCoreIncrease);
     disconnect(_appCore, &AppCore::doDecrease, this, &Controller::onAppCoreDecrease);
-
     disconnect(_appCore, &AppCore::doStartRegistration, this, &Controller::onAppCoreStartRegistration);
     disconnect(_appCore, &AppCore::doStopRegistration, this, &Controller::onAppCoreStopRegistration);
-
     disconnect(_appCore, &AppCore::doNextTrackMarks, this, &Controller::onAppCoreNextTrackMark);
-
     disconnect(_appCore, &AppCore::clearBridgesModel, this, &Controller::onAppCoreClearBridgesModel);
     disconnect(_appCore, &AppCore::clearPlatformsModel, this, &Controller::onAppCoreClearPlatformsModel);
     disconnect(_appCore, &AppCore::clearMiscModel, this, &Controller::onAppCoreClearMiscModel);
     disconnect(_appCore, &AppCore::addItemToBridgesModel, this, &Controller::onAppCoreAddItemToBridgesModel);
     disconnect(_appCore, &AppCore::addItemToPlatformsModel, this, &Controller::onAppCoreAddItemToPlatformsModel);
     disconnect(_appCore, &AppCore::addItemToMiscModel, this, &Controller::onAppCoreAddItemToMiscModel);
-
     disconnect(_appCore, &AppCore::satellitesFound, this, &Controller::onSatellitesFound);
     disconnect(_appCore, &AppCore::satellitesNotFound, this, &Controller::onSatellitesNotFound);
     disconnect(_appCore, &AppCore::satellitesCount, this, &Controller::onSatellitesCount);
-
     disconnect(_appCore, &AppCore::doCurrentMeter, this, &Controller::onAppCoreCurrentMeter);
     disconnect(_appCore, &AppCore::doCurrentTrackMarks, this, &Controller::onAppCoreCurrentTrackMark);
     disconnect(_appCore, &AppCore::doCurrentSpeed, this, &Controller::onAppCoreCurrentSpeed);
-
 
     disconnect(this, &Controller::doNextTrackMark, _appCore, &AppCore::onNextTrackMark);
     disconnect(this, &Controller::doPrevTrackMark, _appCore, &AppCore::onPrevTrackMark);
     disconnect(this, &Controller::doSetTrackMark, _appCore, &AppCore::onSetTrackMark);
     disconnect(this, &Controller::doStartRegistration, _appCore, &AppCore::onStartRegistration);
     disconnect(this, &Controller::doStopRegistration, _appCore, &AppCore::onStopRegistration);
-
     disconnect(this, &Controller::doStartSwitch, _appCore, &AppCore::onStartSwitch);
     disconnect(this, &Controller::doEndSwitch, _appCore, &AppCore::onEndSwitch);
     disconnect(this, &Controller::doBridgeSelected, _appCore, &AppCore::onBridgeSelected);
@@ -193,6 +181,7 @@ void Controller::setIpAddress(QString ipAddress)
     QSettings settings;
     settings.setValue("IpAddress", ipAddress);
     emit doIpAddressChanged();
+    emit doSetIpAddress(_ipAddress);
 }
 
 void Controller::onAppCoreConnected()

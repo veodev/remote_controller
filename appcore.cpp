@@ -7,10 +7,6 @@
 #include <QFile>
 #include <QtEndian>
 
-#ifdef ANDROID
-    #include <QtAndroidExtras>
-#endif
-
 AppCore::AppCore(QObject *parent) : QObject(parent)
   , _tcpSocket(Q_NULLPTR)
   , _km(0)
@@ -20,17 +16,13 @@ AppCore::AppCore(QObject *parent) : QObject(parent)
   , _isRegistrationOn(false)
   , _direction(UnknownDirection)
   , _viewType(KmPkM)
+  , _ipAddress(QSettings().value("IpAddress").toString())
   , _currentHeader(UnknownHeader)
   , _currentCount(-1)
   , _currentCountStrings(-1)
   , _isFinishReadData(true)
   , _isReadList(false)
 {
-#ifdef ANDROID
-    keepScreenOn(true);
-#endif    
-    setIpAddress(QSettings().value("IpAddress").toString());
-    setSoundStatus(QSettings().value("IsSoundEnable").toBool());
 }
 
 int AppCore::getKm()
@@ -48,34 +40,30 @@ int AppCore::getM()
     return _m;
 }
 
-QString &AppCore::getIpAddress()
+void AppCore::onSetIpAddress(QString ipAddress)
 {
-    return _ipAddress;
+    _ipAddress = ipAddress;    
+    qDebug() << "Set ip adress: " << ipAddress;
+    onDisconnectingToServer();
+    QTimer::singleShot(3000, this, &AppCore::onConnectingToServer);
 }
 
-bool AppCore::getSoundStatus()
+void AppCore::onSetSoundStatus(bool isEnabled)
 {
-    return _isSoundEnabled;
+    _isSoundEnabled = isEnabled;    
+    qDebug() << "Set sound status: " << isEnabled;
 }
 
-void AppCore::setIpAddress(QString ipAddress)
+void AppCore::onConnectToServer()
 {
-    _ipAddress = ipAddress;
-    QSettings settings;
-    settings.setValue("IpAddress", ipAddress);
-}
-
-void AppCore::setSoundStatus(bool isEnabled)
-{
-    _isSoundEnabled = isEnabled;
-    QSettings settings;
-    settings.setValue("IsSoundEnable", isEnabled);
+    onConnectingToServer();
 }
 
 void AppCore::startRegistration()
 {    
     if (_tcpSocket!= Q_NULLPTR) {
         _dataStream << StartRegistration;
+        _tcpSocket->flush();
     }
 }
 
@@ -83,6 +71,7 @@ void AppCore::stopRegistration()
 {    
     if (_tcpSocket!= Q_NULLPTR) {
         _dataStream << StopRegistration;
+        _tcpSocket->flush();
     }
 }
 
@@ -90,6 +79,7 @@ void AppCore::bridgeSelected(QString name)
 {
     if (_tcpSocket!= Q_NULLPTR) {
         _dataStream << BridgesItem << _bridgesList.indexOf(name);
+        _tcpSocket->flush();
     }
 }
 
@@ -97,6 +87,7 @@ void AppCore::platformSelected(QString name)
 {
     if (_tcpSocket!= Q_NULLPTR) {
         _dataStream << PlatformsItem << _platformsList.indexOf(name);
+        _tcpSocket->flush();
     }
 }
 
@@ -104,6 +95,7 @@ void AppCore::miscSelected(QString name)
 {
     if (_tcpSocket!= Q_NULLPTR) {
         _dataStream << MiscItem << _miscList.indexOf(name);
+        _tcpSocket->flush();
     }
 }
 
@@ -111,6 +103,7 @@ void AppCore::startSwitch()
 {
     if (_tcpSocket!= Q_NULLPTR) {
         _dataStream << StartSwitch;
+        _tcpSocket->flush();
     }
 }
 
@@ -118,12 +111,14 @@ void AppCore::endSwitch()
 {
     if (_tcpSocket!= Q_NULLPTR) {
         _dataStream << EndSwitch;
+        _tcpSocket->flush();
     }
 }
 
 void AppCore::updateState()
 {
     updateTrackMarks();
+    _tmpTrackMarks = _trackMarks;
     updateCurrentCoordinate();
     if (_direction == ForwardDirection) {
         emit doIncrease();
@@ -139,13 +134,13 @@ void AppCore::updateState()
         emit doStopRegistration();
     }
 
-    _trackMarks.next();
+    _tmpTrackMarks.next();
     QString nextValue;
-    if (_trackMarks.getPostKm(0) == _trackMarks.getPostKm(1)) {
-        nextValue = QString::number(_trackMarks.getPostPk(0)) + "/" + QString::number(_trackMarks.getPostPk(1)) + " пк";
+    if (_trackMarks.getPostKm(0) == _tmpTrackMarks.getPostKm(1)) {
+        nextValue = QString::number(_tmpTrackMarks.getPostPk(0)) + "/" + QString::number(_tmpTrackMarks.getPostPk(1)) + " пк";
     }
     else {
-        nextValue = QString::number(_trackMarks.getPostKm(0)) + "/" + QString::number(_trackMarks.getPostKm(1)) + " км";
+        nextValue = QString::number(_tmpTrackMarks.getPostKm(0)) + "/" + QString::number(_tmpTrackMarks.getPostKm(1)) + " км";
     }
     emit doNextTrackMarks(nextValue);
 }
@@ -158,6 +153,11 @@ void AppCore::updateTrackMarks()
     _trackMarks.setM(_m);
     _trackMarks.updatePost();
 
+}
+
+void AppCore::updateMeters()
+{
+    _trackMarks.setM(_m);
 }
 
 void AppCore::updateCurrentCoordinate()
@@ -175,7 +175,7 @@ void AppCore::updateCurrentCoordinate()
     case MeterOnly:
         emit doCurrentTrackMarks(_trackMarks.getMeterString());
         break;
-    }
+    }    
 }
 
 void AppCore::updateBridgesModel()
@@ -250,32 +250,6 @@ void AppCore::readItem(Headers header, QStringList& list)
     }
 }
 
-#ifdef ANDROID
-void AppCore::keepScreenOn(bool on)
-{
-    QtAndroid::runOnAndroidThread([on]{
-      QAndroidJniObject activity = QtAndroid::androidActivity();
-      if (activity.isValid()) {
-        QAndroidJniObject window =
-            activity.callObjectMethod("getWindow", "()Landroid/view/Window;");
-
-        if (window.isValid()) {
-          const int FLAG_KEEP_SCREEN_ON = 128;
-          if (on) {
-            window.callMethod<void>("addFlags", "(I)V", FLAG_KEEP_SCREEN_ON);
-          } else {
-            window.callMethod<void>("clearFlags", "(I)V", FLAG_KEEP_SCREEN_ON);
-          }
-        }
-      }
-      QAndroidJniEnvironment env;
-      if (env->ExceptionCheck()) {
-        env->ExceptionClear();
-      }
-    });
-}
-#endif
-
 void AppCore::checkDistance()
 {
     if (_mediaPlayer->state() == QMediaPlayer::PlayingState) {
@@ -293,13 +267,13 @@ void AppCore::checkDistance()
 void AppCore::nextTrackmark()
 {
     QString nextValue;
-    _trackMarks.next();
-    _trackMarks.updatePost();
-    if (_trackMarks.getPostKm(0) == _trackMarks.getPostKm(1)) {
-        nextValue = QString::number(_trackMarks.getPostPk(0)) + "/" + QString::number(_trackMarks.getPostPk(1)) + " пк";
+    _tmpTrackMarks.next();
+    _tmpTrackMarks.updatePost();
+    if (_tmpTrackMarks.getPostKm(0) == _tmpTrackMarks.getPostKm(1)) {
+        nextValue = QString::number(_tmpTrackMarks.getPostPk(0)) + "/" + QString::number(_tmpTrackMarks.getPostPk(1)) + " пк";
     }
     else {
-        nextValue = QString::number(_trackMarks.getPostKm(0)) + "/" + QString::number(_trackMarks.getPostKm(1)) + " км";
+        nextValue = QString::number(_tmpTrackMarks.getPostKm(0)) + "/" + QString::number(_tmpTrackMarks.getPostKm(1)) + " км";
     }
     emit doNextTrackMarks(nextValue);
 }
@@ -307,47 +281,38 @@ void AppCore::nextTrackmark()
 void AppCore::prevTrackmark()
 {
     QString nextValue;
-    _trackMarks.prev();
-    _trackMarks.updatePost();
-    if (_trackMarks.getPostKm(0) == _trackMarks.getPostKm(1)) {
-        nextValue = QString::number(_trackMarks.getPostPk(0)) + "/" + QString::number(_trackMarks.getPostPk(1)) + " пк";
+    _tmpTrackMarks.prev();
+    _tmpTrackMarks.updatePost();
+    if (_tmpTrackMarks.getPostKm(0) == _tmpTrackMarks.getPostKm(1)) {
+        nextValue = QString::number(_tmpTrackMarks.getPostPk(0)) + "/" + QString::number(_tmpTrackMarks.getPostPk(1)) + " пк";
     }
     else {
-        nextValue = QString::number(_trackMarks.getPostKm(0)) + "/" + QString::number(_trackMarks.getPostKm(1)) + " км";
+        nextValue = QString::number(_tmpTrackMarks.getPostKm(0)) + "/" + QString::number(_tmpTrackMarks.getPostKm(1)) + " км";
     }
     emit doNextTrackMarks(nextValue);
 }
 
 void AppCore::setTrackMarks()
 {    
-    _dataStream << CurrentTrackMarks << _trackMarks.getKm() << _trackMarks.getPk();
-    QString nextValue;
-    _trackMarks.next();
-    if (_trackMarks.getPostKm(0) == _trackMarks.getPostKm(1)) {
-        nextValue = QString::number(_trackMarks.getPostPk(0)) + "/" + QString::number(_trackMarks.getPostPk(1)) + " пк";
-    }
-    else {
-        nextValue = QString::number(_trackMarks.getPostKm(0)) + "/" + QString::number(_trackMarks.getPostKm(1)) + " км";
-    }
-    emit doNextTrackMarks(nextValue);
+    _dataStream << CurrentTrackMarks << _tmpTrackMarks.getKm() << _tmpTrackMarks.getPk();
+    qDebug() << "Set track marks bytes to write: " << _tcpSocket->bytesToWrite();
+    _tcpSocket->flush();
     _isSoundEnabled = true;
 }
 
 void AppCore::onPositionUpdate(const QGeoPositionInfo &info)
-{    
+{        
     if (_tcpSocket!= Q_NULLPTR) {
+        _tcpSocket->flush();
         _dataStream << SatellitesInfo
                << float(info.coordinate().latitude())
                << float(info.coordinate().longitude())
                << float(info.coordinate().altitude())
                << float(info.attribute(QGeoPositionInfo::Direction))
                << float(info.attribute(QGeoPositionInfo::GroundSpeed))
-               << info.timestamp().date().year()
-               << uchar(info.timestamp().date().month())
-               << uchar(info.timestamp().date().day())
-               << uchar(info.timestamp().time().hour())
-               << uchar(info.timestamp().time().minute())
-               << uchar(info.timestamp().time().second());
+               << info.timestamp();
+        qDebug() << "Bytes to write: " << _tcpSocket->bytesToWrite();
+        _tcpSocket->flush();
     }
 }
 
@@ -356,13 +321,14 @@ void AppCore::onSatellitesInUseUpdated(const QList<QGeoSatelliteInfo> &satellite
     if (_tcpSocket!= Q_NULLPTR) {
         auto count = satellites.count();
         _dataStream << SatellitesInUse << count;
+        _tcpSocket->flush();
         if (count >= 3) {
             emit satellitesFound();
         }
         else {
             emit satellitesNotFound();
         }
-        emit satellitesCount(count);
+        emit satellitesCount(count);        
     }
 }
 
@@ -384,7 +350,6 @@ void AppCore::onSatellitesError(QGeoSatelliteInfoSource::Error satelliteError)
 
 void AppCore::startWork()
 {
-    onConnectingToServer();
     qDebug() << "AppCore started!";
     initMedia();
     initGeo();
@@ -402,13 +367,13 @@ void AppCore::initGeo()
 {
     _geoPosition = QGeoPositionInfoSource::createDefaultSource(this);
     connect(_geoPosition, &QGeoPositionInfoSource::positionUpdated, this , &AppCore::onPositionUpdate);
-    _geoPosition->setUpdateInterval(500);
+//    _geoPosition->setUpdateInterval(500);
     _geoPosition->startUpdates();
 
     _geoSatellite = QGeoSatelliteInfoSource::createDefaultSource(this);
     connect(_geoSatellite, &QGeoSatelliteInfoSource::satellitesInUseUpdated, this, &AppCore::onSatellitesInUseUpdated);
     connect(_geoSatellite, SIGNAL(error(QGeoSatelliteInfoSource::Error)), this, SLOT(onSatellitesError(QGeoSatelliteInfoSource::Error)));
-    _geoSatellite->setUpdateInterval(500);
+//    _geoSatellite->setUpdateInterval(500);
     _geoSatellite->startUpdates();
     qDebug() << "Geo inited!";
 }
@@ -472,6 +437,7 @@ void AppCore::onConnectingToServer()
         connect(_tcpSocket, &QTcpSocket::readyRead, this, &AppCore::onSocketReadyRead, Qt::DirectConnection);
         connect(_tcpSocket, &QTcpSocket::stateChanged, this, &AppCore::onSocketStateChanged);
         _tcpSocket->connectToHost(_ipAddress, 49001, QTcpSocket::ReadWrite);
+        qDebug() << "Connect to: " << _ipAddress;
     }
 }
 
@@ -497,24 +463,37 @@ void AppCore::onSocketReadyRead()
         _currentHeader = static_cast<Headers>(header);
     }
 
-
     switch (_currentHeader) {
-    case CurrentMeter:
-        _dataStream >> _m;
+    case CurrentMeter:        
+        _dataStream >> _m;        
         checkDistance();
+        updateMeters();
         updateCurrentCoordinate();
         break;
     case CurrentSpeed:
         double speed;
-        _dataStream >> speed;
+        _dataStream >> speed;        
         emit doCurrentSpeed(speed);
         break;
-    case CurrentTrackMarks:
+    case CurrentTrackMarks: {
         _dataStream >> _km >> _pk >> _m;
-        updateState();
+        updateTrackMarks();
+        updateCurrentCoordinate();
+        _tmpTrackMarks = _trackMarks;
+        _tmpTrackMarks.next();
+        QString nextValue;
+        if (_tmpTrackMarks.getPostKm(0) == _tmpTrackMarks.getPostKm(1)) {
+            nextValue = QString::number(_tmpTrackMarks.getPostPk(0)) + "/" + QString::number(_tmpTrackMarks.getPostPk(1)) + " пк";
+        }
+        else {
+            nextValue = QString::number(_tmpTrackMarks.getPostKm(0)) + "/" + QString::number(_tmpTrackMarks.getPostKm(1)) + " км";
+        }
+        emit doNextTrackMarks(nextValue);
+        _isSoundEnabled = true;
         break;
+    }
     case UpdateState:
-        _dataStream >> _isRegistrationOn >> viewType >> direction >> _km >> _pk >> _m;
+        _dataStream >> _isRegistrationOn >> viewType >> direction >> _km >> _pk >> _m;        
         _direction = static_cast<Direction>(direction);
         _viewType = static_cast<ViewCoordinate>(viewType);
         updateState();

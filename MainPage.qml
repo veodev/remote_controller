@@ -97,14 +97,14 @@ Page {
                         target: registrationStatusImage
                         from: 0;
                         to: 1;
-                        duration: 1000
+                        duration: 300
                     }
 
                     OpacityAnimator {
                         target: registrationStatusImage
                         from: 1;
                         to: 0;
-                        duration: 1000
+                        duration: 300
                     }
                 }
             }
@@ -396,7 +396,7 @@ Page {
                          : speedValue.text = Number(speed).toPrecision(3)
         }
         onDoCurrentTrackMark: {
-            currentCoordinate.text = value
+            currentCoordinate.text = value            
         }
         onDoNextTrackMarks: {
             nextValue.text = value            
