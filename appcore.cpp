@@ -43,15 +43,13 @@ int AppCore::getM()
 void AppCore::onSetIpAddress(QString ipAddress)
 {
     _ipAddress = ipAddress;    
-    qDebug() << "Set ip adress: " << ipAddress;
     onDisconnectingToServer();
     QTimer::singleShot(3000, this, &AppCore::onConnectingToServer);
 }
 
 void AppCore::onSetSoundStatus(bool isEnabled)
 {
-    _isSoundEnabled = isEnabled;    
-    qDebug() << "Set sound status: " << isEnabled;
+    _isSoundEnabled = isEnabled;        
 }
 
 void AppCore::onConnectToServer()
@@ -210,7 +208,7 @@ void AppCore::readItem(Headers header, QStringList& list)
 
     while (_tcpSocket->bytesAvailable()) {
         if (_tcpSocket->bytesAvailable() >= _currentCount) {
-            for (int i = 0; i < _currentCount; ++i) {
+            for (int i = 0; i < _currentCount; ++i) {                
                 char byte;
                 _tcpSocket->read(&byte, 1);
                 _currentData.append(byte);
@@ -237,7 +235,6 @@ void AppCore::readItem(Headers header, QStringList& list)
                     break;
                 }
             }
-
             break;
         }
 
@@ -367,13 +364,11 @@ void AppCore::initGeo()
 {
     _geoPosition = QGeoPositionInfoSource::createDefaultSource(this);
     connect(_geoPosition, &QGeoPositionInfoSource::positionUpdated, this , &AppCore::onPositionUpdate);
-//    _geoPosition->setUpdateInterval(500);
     _geoPosition->startUpdates();
 
     _geoSatellite = QGeoSatelliteInfoSource::createDefaultSource(this);
     connect(_geoSatellite, &QGeoSatelliteInfoSource::satellitesInUseUpdated, this, &AppCore::onSatellitesInUseUpdated);
     connect(_geoSatellite, SIGNAL(error(QGeoSatelliteInfoSource::Error)), this, SLOT(onSatellitesError(QGeoSatelliteInfoSource::Error)));
-//    _geoSatellite->setUpdateInterval(500);
     _geoSatellite->startUpdates();
     qDebug() << "Geo inited!";
 }
@@ -436,8 +431,7 @@ void AppCore::onConnectingToServer()
         _tcpSocket->setReadBufferSize(32);
         connect(_tcpSocket, &QTcpSocket::readyRead, this, &AppCore::onSocketReadyRead, Qt::DirectConnection);
         connect(_tcpSocket, &QTcpSocket::stateChanged, this, &AppCore::onSocketStateChanged);
-        _tcpSocket->connectToHost(_ipAddress, 49001, QTcpSocket::ReadWrite);
-        qDebug() << "Connect to: " << _ipAddress;
+        _tcpSocket->connectToHost(_ipAddress, 49001, QTcpSocket::ReadWrite);        
     }
 }
 
@@ -448,7 +442,7 @@ void AppCore::onDisconnectingToServer()
         disconnect(_tcpSocket, &QTcpSocket::readyRead, this, &AppCore::onSocketReadyRead);
         disconnect(_tcpSocket, &QTcpSocket::stateChanged, this, &AppCore::onSocketStateChanged);
         _tcpSocket->deleteLater();
-        _tcpSocket = Q_NULLPTR;
+        _tcpSocket = Q_NULLPTR;        
     }
 }
 
@@ -522,13 +516,13 @@ void AppCore::onSocketReadyRead()
             _isReadList = true;
         }
         break;
-    case BridgesItem:
+    case BridgesItem:        
         readItem(_currentHeader, _bridgesList);
         break;
-    case PlatformsItem:
+    case PlatformsItem:        
         readItem(_currentHeader, _platformsList);
         break;
-    case MiscItem:
+    case MiscItem:        
         readItem(_currentHeader, _miscList);
         break;
     }
@@ -548,10 +542,7 @@ void AppCore::onSocketStateChanged(QAbstractSocket::SocketState state)
     case QAbstractSocket::ConnectedState:
         emit doSocketConnected();
         break;
-    case QAbstractSocket::HostLookupState:
-    case QAbstractSocket::BoundState:
-    case QAbstractSocket::ClosingState:
-    case QAbstractSocket::ListeningState:
+    default:
         break;
     }
 }

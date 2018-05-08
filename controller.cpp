@@ -16,8 +16,6 @@ Controller::Controller(QObject *parent) : QObject(parent)
 #ifdef ANDROID
     keepScreenOn(true);
 #endif
-    setIpAddress(QSettings().value("IpAddress").toString());
-    setSoundStatus(QSettings().value("IsSoundEnable").toBool());
 
     _appCoreThread->setObjectName("appCoreThread");
     _appCore = new AppCore();
@@ -60,7 +58,8 @@ Controller::Controller(QObject *parent) : QObject(parent)
     _appCore->moveToThread(_appCoreThread);
     _appCoreThread->start();
     emit doSetSoundStatus(_isSoundEnabled);
-    emit doConnectToServer();
+    setIpAddress(QSettings().value("IpAddress").toString());
+    setSoundStatus(QSettings().value("IsSoundEnable").toBool());
 }
 
 Controller::~Controller()

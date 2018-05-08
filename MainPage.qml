@@ -69,14 +69,14 @@ Page {
                             target: satellitesImage
                             from: 0;
                             to: 1;
-                            duration: 1000
+                            duration: 500
                         }
 
                         OpacityAnimator {
                             target: satellitesImage
                             from: 1;
                             to: 0;
-                            duration: 1000
+                            duration: 500
                         }
                     }
                 }
@@ -97,14 +97,14 @@ Page {
                         target: registrationStatusImage
                         from: 0;
                         to: 1;
-                        duration: 300
+                        duration: 500
                     }
 
                     OpacityAnimator {
                         target: registrationStatusImage
                         from: 1;
                         to: 0;
-                        duration: 300
+                        duration: 500
                     }
                 }
             }
@@ -126,6 +126,25 @@ Page {
                 Layout.fillWidth: false
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 source: "images/disconnected.png"
+
+                SequentialAnimation {
+                    id: connectionAnimation
+                    running: true
+                    loops: Animation.Infinite
+                    OpacityAnimator {
+                        target: connectionStatusImage
+                        from: 0;
+                        to: 1;
+                        duration: 500
+                    }
+
+                    OpacityAnimator {
+                        target: connectionStatusImage
+                        from: 1;
+                        to: 0;
+                        duration: 500
+                    }
+                }
             }
         }
 
@@ -152,6 +171,25 @@ Page {
                 horizontalAlignment: Text.AlignHCenter
                 font.pixelSize: nextValueBackground.height/8
                 font.bold: true
+            }
+
+            SequentialAnimation {
+                id: nextValueAnimation
+                running: true
+                loops: Animation.Infinite
+                OpacityAnimator {
+                    target: nextValue
+                    from: 0;
+                    to: 1;
+                    duration: 500
+                }
+
+                OpacityAnimator {
+                    target: nextValue
+                    from: 1;
+                    to: 0;
+                    duration: 500
+                }
             }
         }
 
@@ -369,9 +407,12 @@ Page {
         target: backend
         onDoSocketConnected: {
             connectionStatusImage.source = "images/connected.png"
+            connectionAnimation.stop()
+            connectionStatusImage.opacity = 1
         }
         onDoSocketDisconnected: {
             connectionStatusImage.source = "images/disconnected.png"
+            connectionAnimation.start()
         }
         onDoCurrentMeter: {
             mValue.text = m
