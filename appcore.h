@@ -44,14 +44,6 @@ public:
     int getPk();
     int getM();
 
-    Q_INVOKABLE void startRegistration();
-    Q_INVOKABLE void stopRegistration();
-    Q_INVOKABLE void bridgeSelected(QString name);
-    Q_INVOKABLE void platformSelected(QString name);
-    Q_INVOKABLE void miscSelected(QString name);
-    Q_INVOKABLE void startSwitch();
-    Q_INVOKABLE void endSwitch();
-
 private:
     void updateState();    
     void updateTrackMarks();
@@ -94,10 +86,7 @@ public slots:
     void onDisconnectingToServer();
     void onSocketReadyRead();
     void onSocketStateChanged(QAbstractSocket::SocketState state);
-    void checkDistance();
-    void nextTrackmark();
-    void prevTrackmark();
-    void setTrackMarks();
+    void checkDistance();    
     void onPositionUpdate(const QGeoPositionInfo& info);
     void onSatellitesInUseUpdated(const QList<QGeoSatelliteInfo>& satellites);
     void onSatellitesError(QGeoSatelliteInfoSource::Error satelliteError);

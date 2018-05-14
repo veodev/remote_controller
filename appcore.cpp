@@ -57,67 +57,12 @@ void AppCore::onConnectToServer()
     onConnectingToServer();
 }
 
-void AppCore::startRegistration()
-{    
-    if (_tcpSocket!= Q_NULLPTR) {
-        _dataStream << StartRegistration;
-        _tcpSocket->flush();
-    }
-}
-
-void AppCore::stopRegistration()
-{    
-    if (_tcpSocket!= Q_NULLPTR) {
-        _dataStream << StopRegistration;
-        _tcpSocket->flush();
-    }
-}
-
-void AppCore::bridgeSelected(QString name)
-{
-    if (_tcpSocket!= Q_NULLPTR) {
-        _dataStream << BridgesItem << _bridgesList.indexOf(name);
-        _tcpSocket->flush();
-    }
-}
-
-void AppCore::platformSelected(QString name)
-{
-    if (_tcpSocket!= Q_NULLPTR) {
-        _dataStream << PlatformsItem << _platformsList.indexOf(name);
-        _tcpSocket->flush();
-    }
-}
-
-void AppCore::miscSelected(QString name)
-{
-    if (_tcpSocket!= Q_NULLPTR) {
-        _dataStream << MiscItem << _miscList.indexOf(name);
-        _tcpSocket->flush();
-    }
-}
-
-void AppCore::startSwitch()
-{
-    if (_tcpSocket!= Q_NULLPTR) {
-        _dataStream << StartSwitch;
-        _tcpSocket->flush();
-    }
-}
-
-void AppCore::endSwitch()
-{
-    if (_tcpSocket!= Q_NULLPTR) {
-        _dataStream << EndSwitch;
-        _tcpSocket->flush();
-    }
-}
-
 void AppCore::updateState()
 {
     updateTrackMarks();
-    _tmpTrackMarks = _trackMarks;
     updateCurrentCoordinate();
+    onNextTrackMark();
+
     if (_direction == ForwardDirection) {
         emit doIncrease();
     }
@@ -125,22 +70,7 @@ void AppCore::updateState()
         emit doDecrease();
     }
 
-    if (_isRegistrationOn == true) {
-        emit doStartRegistration();
-    }
-    else {
-        emit doStopRegistration();
-    }
-
-    _tmpTrackMarks.next();
-    QString nextValue;
-    if (_trackMarks.getPostKm(0) == _tmpTrackMarks.getPostKm(1)) {
-        nextValue = QString::number(_tmpTrackMarks.getPostPk(0)) + "/" + QString::number(_tmpTrackMarks.getPostPk(1)) + " пк";
-    }
-    else {
-        nextValue = QString::number(_tmpTrackMarks.getPostKm(0)) + "/" + QString::number(_tmpTrackMarks.getPostKm(1)) + " км";
-    }
-    emit doNextTrackMarks(nextValue);
+    (_isRegistrationOn == true) ? emit doStartRegistration() : emit doStopRegistration();
 }
 
 void AppCore::updateTrackMarks()
@@ -151,6 +81,7 @@ void AppCore::updateTrackMarks()
     _trackMarks.setM(_m);
     _trackMarks.updatePost();
 
+    _tmpTrackMarks = _trackMarks;
 }
 
 void AppCore::updateMeters()
@@ -261,42 +192,6 @@ void AppCore::checkDistance()
     }
 }
 
-void AppCore::nextTrackmark()
-{
-    QString nextValue;
-    _tmpTrackMarks.next();
-    _tmpTrackMarks.updatePost();
-    if (_tmpTrackMarks.getPostKm(0) == _tmpTrackMarks.getPostKm(1)) {
-        nextValue = QString::number(_tmpTrackMarks.getPostPk(0)) + "/" + QString::number(_tmpTrackMarks.getPostPk(1)) + " пк";
-    }
-    else {
-        nextValue = QString::number(_tmpTrackMarks.getPostKm(0)) + "/" + QString::number(_tmpTrackMarks.getPostKm(1)) + " км";
-    }
-    emit doNextTrackMarks(nextValue);
-}
-
-void AppCore::prevTrackmark()
-{
-    QString nextValue;
-    _tmpTrackMarks.prev();
-    _tmpTrackMarks.updatePost();
-    if (_tmpTrackMarks.getPostKm(0) == _tmpTrackMarks.getPostKm(1)) {
-        nextValue = QString::number(_tmpTrackMarks.getPostPk(0)) + "/" + QString::number(_tmpTrackMarks.getPostPk(1)) + " пк";
-    }
-    else {
-        nextValue = QString::number(_tmpTrackMarks.getPostKm(0)) + "/" + QString::number(_tmpTrackMarks.getPostKm(1)) + " км";
-    }
-    emit doNextTrackMarks(nextValue);
-}
-
-void AppCore::setTrackMarks()
-{    
-    _dataStream << CurrentTrackMarks << _tmpTrackMarks.getKm() << _tmpTrackMarks.getPk();
-    qDebug() << "Set track marks bytes to write: " << _tcpSocket->bytesToWrite();
-    _tcpSocket->flush();
-    _isSoundEnabled = true;
-}
-
 void AppCore::onPositionUpdate(const QGeoPositionInfo &info)
 {        
     if (_tcpSocket!= Q_NULLPTR) {
@@ -307,8 +202,7 @@ void AppCore::onPositionUpdate(const QGeoPositionInfo &info)
                << float(info.coordinate().altitude())
                << float(info.attribute(QGeoPositionInfo::Direction))
                << float(info.attribute(QGeoPositionInfo::GroundSpeed))
-               << info.timestamp();
-        qDebug() << "Bytes to write: " << _tcpSocket->bytesToWrite();
+               << info.timestamp();        
         _tcpSocket->flush();
     }
 }
@@ -319,12 +213,7 @@ void AppCore::onSatellitesInUseUpdated(const QList<QGeoSatelliteInfo> &satellite
         auto count = satellites.count();
         _dataStream << SatellitesInUse << count;
         _tcpSocket->flush();
-        if (count >= 3) {
-            emit satellitesFound();
-        }
-        else {
-            emit satellitesNotFound();
-        }
+        (count >= 3) ? emit satellitesFound() : emit satellitesNotFound();
         emit satellitesCount(count);        
     }
 }
@@ -374,53 +263,83 @@ void AppCore::initGeo()
 }
 
 void AppCore::onNextTrackMark()
-{
-    nextTrackmark();
+{    
+    QString nextValue;
+    _tmpTrackMarks.next();
+    _tmpTrackMarks.getPostKm(0) == _tmpTrackMarks.getPostKm(1) ? nextValue = QString::number(_tmpTrackMarks.getPostPk(0)) + "/" + QString::number(_tmpTrackMarks.getPostPk(1)) + " пк"
+                                                               : nextValue = QString::number(_tmpTrackMarks.getPostKm(0)) + "/" + QString::number(_tmpTrackMarks.getPostKm(1)) + " км";
+    emit doNextTrackMarks(nextValue);
 }
 
 void AppCore::onPrevTrackMark()
 {
-    prevTrackmark();
+    QString nextValue;
+    _tmpTrackMarks.prev();
+    _tmpTrackMarks.getPostKm(0) == _tmpTrackMarks.getPostKm(1) ? nextValue = QString::number(_tmpTrackMarks.getPostPk(0)) + "/" + QString::number(_tmpTrackMarks.getPostPk(1)) + " пк"
+                                                               : nextValue = QString::number(_tmpTrackMarks.getPostKm(0)) + "/" + QString::number(_tmpTrackMarks.getPostKm(1)) + " км";
+    emit doNextTrackMarks(nextValue);
 }
 
 void AppCore::onSetTrackMark()
-{
-    setTrackMarks();
+{    
+    _dataStream << CurrentTrackMarks << _tmpTrackMarks.getKm() << _tmpTrackMarks.getPk();
+    _tcpSocket->flush();
 }
 
 void AppCore::onStartRegistration()
 {
-    startRegistration();
+    if (_tcpSocket!= Q_NULLPTR) {
+        _dataStream << StartRegistration;
+        _tcpSocket->flush();
+    }
 }
 
 void AppCore::onStopRegistration()
-{
-    stopRegistration();
+{    
+    if (_tcpSocket!= Q_NULLPTR) {
+        _dataStream << StopRegistration;
+        _tcpSocket->flush();
+    }
 }
 
 void AppCore::onStartSwitch()
-{
-    startSwitch();
+{    
+    if (_tcpSocket!= Q_NULLPTR) {
+        _dataStream << StartSwitch;
+        _tcpSocket->flush();
+    }
 }
 
 void AppCore::onEndSwitch()
-{
-    endSwitch();
+{    
+    if (_tcpSocket!= Q_NULLPTR) {
+        _dataStream << EndSwitch;
+        _tcpSocket->flush();
+    }
 }
 
 void AppCore::onBridgeSelected(QString name)
 {
-    bridgeSelected(name);
+    if (_tcpSocket!= Q_NULLPTR) {
+        _dataStream << BridgesItem << _bridgesList.indexOf(name);
+        _tcpSocket->flush();
+    }
 }
 
 void AppCore::onPlatformSelected(QString name)
-{
-    platformSelected(name);
+{    
+    if (_tcpSocket!= Q_NULLPTR) {
+        _dataStream << PlatformsItem << _platformsList.indexOf(name);
+        _tcpSocket->flush();
+    }
 }
 
 void AppCore::onMiscSelected(QString name)
-{
-    miscSelected(name);
+{    
+    if (_tcpSocket!= Q_NULLPTR) {
+        _dataStream << MiscItem << _miscList.indexOf(name);
+        _tcpSocket->flush();
+    }
 }
 
 void AppCore::onConnectingToServer()
@@ -449,9 +368,6 @@ void AppCore::onDisconnectingToServer()
 void AppCore::onSocketReadyRead()
 {
     int header;
-    int direction;
-    int viewType;
-
     if (_isFinishReadData) {
         _dataStream >> header;
         _currentHeader = static_cast<Headers>(header);
@@ -472,21 +388,14 @@ void AppCore::onSocketReadyRead()
     case CurrentTrackMarks: {
         _dataStream >> _km >> _pk >> _m;
         updateTrackMarks();
-        updateCurrentCoordinate();
-        _tmpTrackMarks = _trackMarks;
-        _tmpTrackMarks.next();
-        QString nextValue;
-        if (_tmpTrackMarks.getPostKm(0) == _tmpTrackMarks.getPostKm(1)) {
-            nextValue = QString::number(_tmpTrackMarks.getPostPk(0)) + "/" + QString::number(_tmpTrackMarks.getPostPk(1)) + " пк";
-        }
-        else {
-            nextValue = QString::number(_tmpTrackMarks.getPostKm(0)) + "/" + QString::number(_tmpTrackMarks.getPostKm(1)) + " км";
-        }
-        emit doNextTrackMarks(nextValue);
+        updateCurrentCoordinate();        
+        onNextTrackMark();
         _isSoundEnabled = true;
         break;
     }
     case UpdateState:
+        int viewType;
+        int direction;
         _dataStream >> _isRegistrationOn >> viewType >> direction >> _km >> _pk >> _m;        
         _direction = static_cast<Direction>(direction);
         _viewType = static_cast<ViewCoordinate>(viewType);
@@ -495,26 +404,20 @@ void AppCore::onSocketReadyRead()
     case BridgesList:
         _bridgesList.clear();
         emit clearBridgesModel();
-        _dataStream >> _currentCountStrings;
-        if (_currentCountStrings > 0) {
-            _isReadList = true;
-        }        
+        _dataStream >> _currentCountStrings;        
+        _isReadList = (_currentCountStrings > 0);
         break;    
     case PlatformsList:        
         _platformsList.clear();
         emit clearPlatformsModel();
-        _dataStream >> _currentCountStrings;
-        if (_currentCountStrings > 0) {
-            _isReadList = true;
-        }        
+        _dataStream >> _currentCountStrings;        
+        _isReadList = (_currentCountStrings > 0);
         break;
     case MiscList:        
         _miscList.clear();
         emit clearMiscModel();
-        _dataStream >> _currentCountStrings;
-        if (_currentCountStrings > 0) {
-            _isReadList = true;
-        }
+        _dataStream >> _currentCountStrings;        
+        _isReadList = (_currentCountStrings > 0);
         break;
     case BridgesItem:        
         readItem(_currentHeader, _bridgesList);
@@ -525,7 +428,9 @@ void AppCore::onSocketReadyRead()
     case MiscItem:        
         readItem(_currentHeader, _miscList);
         break;
-    }
+    default:
+        break;
+    }    
 }
 
 void AppCore::onSocketStateChanged(QAbstractSocket::SocketState state)
