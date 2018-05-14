@@ -188,6 +188,7 @@ void AppCore::checkDistance()
             _isSoundEnabled = false;
             _mediaPlayer->setPosition(0);
             _mediaPlayer->play();
+            emit doNotForget();
         }
     }
 }

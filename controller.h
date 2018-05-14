@@ -70,6 +70,7 @@ signals:
     void doSetSoundStatus(bool isEnabled);
     void doSetIpAddress(QString ipAddress);
     void doConnectToServer();
+    void doNotForget();
 
 public slots:
 
@@ -93,6 +94,7 @@ private slots:
     void onAppCoreCurrentMeter(int m);
     void onAppCoreCurrentTrackMark(QString value);
     void onAppCoreCurrentSpeed(double speed);
+    void onDoNotForget();
 
 
 private:

@@ -171,34 +171,48 @@ Page {
                 horizontalAlignment: Text.AlignHCenter
                 font.pixelSize: nextValueBackground.height/8
                 font.bold: true
+                SequentialAnimation on color{
+                    id: nextValueAnimation
+                    running: false
+                    loops: Animation.Infinite
+                    ColorAnimation {
+                        from: "#e90000"
+                        to: "white"
+                        duration: 500
+                    }
+
+                    ColorAnimation {
+                        from: "white"
+                        to: "#e90000"
+                        duration: 500
+                    }
+                }
             }
 
-            SequentialAnimation {
-                id: nextValueAnimation
-                running: true
+            SequentialAnimation on color{
+                id: nextValueBackgroundAnimation
+                running: false
                 loops: Animation.Infinite
-                OpacityAnimator {
-                    target: nextValue
-                    from: 0;
-                    to: 1;
+                ColorAnimation {
+                    from: "white"
+                    to: "red"
                     duration: 500
                 }
 
-                OpacityAnimator {
-                    target: nextValue
-                    from: 1;
-                    to: 0;
+                ColorAnimation {
+                    from: "red"
+                    to: "white"
                     duration: 500
                 }
             }
         }
 
-        Button {
+        CustomButton {
             id: marksButton
             y: 133
             height: item1.height/10
-            text: "Отметки"            
-            anchors.bottom: columnLayout.top
+            text: "Отметки"
+            anchors.bottom: rowLayout.top
             anchors.bottomMargin: 70
             anchors.right: parent.right
             anchors.rightMargin: 20
@@ -206,28 +220,14 @@ Page {
             anchors.leftMargin: 20
             font.pointSize: 30
             Layout.minimumWidth: 220
-            Layout.fillHeight: true          
+            Layout.fillHeight: true
             focusPolicy: Qt.StrongFocus
-            contentItem: Text {
-                text: marksButton.text
-                font.pointSize: 24
-                verticalAlignment: Text.AlignVCenter
-                horizontalAlignment: Text.AlignHCenter
-                color: marksButton.down ? "black" : "white"
-            }
-
-            background: Rectangle {
-                border.color: "white"
-                border.width: 2
-                color: marksButton.down ? "white" : "#00000000"
-                radius: 5
-            }
             onReleased: {
                 stackView.push(marksPage)
             }
         }
 
-        Button {
+        CustomButton {
             id: minusButton
             y: 915
             width: (setButton.width / 2) - 20
@@ -241,31 +241,18 @@ Page {
             focusPolicy: Qt.NoFocus
             Layout.fillHeight: true
             font.pixelSize: 30
-            contentItem: Text {
-                verticalAlignment: Text.AlignVCenter
-                horizontalAlignment: Text.AlignHCenter
-                color: minusButton.down ? "black" : "white"
-                text: "-"
-                font.pointSize: 24
-                fontSizeMode: Text.Fit
-                elide: Text.ElideNone
-                textFormat: Text.PlainText                
-                font.bold: true
-            }
-
-            background: Rectangle {
-                border.color: "white"
-                border.width: 2
-                color: minusButton.down ? "white" : "#00000000"
-                radius: 5
-                anchors.fill:parent
-            }
             onClicked: {
                 backend.prevTrackMark()
+                nextValueAnimation.stop()
+                nextValue.color = "#e90000"
+                nextValueBackgroundAnimation.stop()
+                nextValueBackground.color = "white"
+                setButtonTextAnimation.stop()
+                setButton.opacity = 1
             }
         }
 
-        Button {
+        CustomButton {
             id: plusButton
             x: 399
             y: 915
@@ -280,33 +267,18 @@ Page {
             Layout.fillWidth: true
             Layout.fillHeight: true
             focusPolicy: Qt.NoFocus
-
-            contentItem: Text {
-                textFormat: Text.PlainText
-                //                        font.pointSize: 6
-                verticalAlignment: Text.AlignVCenter
-                horizontalAlignment: Text.AlignHCenter
-                color: plusButton.down ? "black" : "white"
-                text: "+"
-                font.pointSize: 24
-                fontSizeMode: Text.Fit
-                font.family: "DejaVu Sans"
-                font.bold: true
-            }
-
-            background: Rectangle {
-                border.color: "white"
-                border.width: 2
-                color: plusButton.down ? "white" : "#00000000"
-                radius: 5
-                anchors.fill:parent
-            }
             onClicked: {
                 backend.nextTrackMark()
+                nextValueAnimation.stop()
+                nextValue.color = "#e90000"
+                nextValueBackgroundAnimation.stop()
+                nextValueBackground.color = "white"
+                setButtonTextAnimation.stop()
+                setButton.opacity = 1
             }
         }
 
-        Button {
+        CustomButton {
             id: setButton
             y: 1064
             height: item1.height/10
@@ -321,71 +293,84 @@ Page {
             Layout.fillHeight: true
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-            contentItem: Text {
-                text: setButton.text
-                font.bold: false
-                font.pointSize: 24
-                verticalAlignment: Text.AlignVCenter
-                horizontalAlignment: Text.AlignHCenter
-                color: setButton.down ? "black" : "white"
-            }
+            SequentialAnimation {
+                id: setButtonTextAnimation
+                running: false
+                loops: Animation.Infinite
+                OpacityAnimator {
+                    target: setButton
+                    from: 0;
+                    to: 1;
+                    duration: 500
+                }
 
-            background: Rectangle {
-                border.color: "white"
-                border.width: 2
-                color: setButton.down ? "white" : "#00000000"
-                radius: 5
-                anchors.fill:parent
+                OpacityAnimator {
+                    target: setButton
+                    from: 1;
+                    to: 0;
+                    duration: 500
+                }
             }
-
             onReleased: {
                 backend.setTrackMark()
+                nextValueAnimation.stop()
+                nextValue.color = "#e90000"
+                nextValueBackgroundAnimation.stop()
+                nextValueBackground.color = "white"
+                setButtonTextAnimation.stop()
+                setButton.opacity = 1
+            }
+        }
+
+        RowLayout {
+            id: rowLayout
+            x: 280
+            y: 370
+            width: 232
+            height: 45
+            anchors.bottom: columnLayout.top
+            anchors.bottomMargin: 30
+            anchors.horizontalCenterOffset: 15
+            anchors.horizontalCenter: parent.horizontalCenter
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+            spacing: 10
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+
+            Text {
+                id: speedValue
+                color: "#ffffff"
+                text: qsTr("0")
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                Layout.fillHeight: true
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignRight
+                Layout.fillWidth: false
+                font.pixelSize: item1.height / 25
+            }
+
+            Text {
+                id: speedLabel
+                color: "#ffffff"
+                text: qsTr("км/ч")
+                Layout.fillHeight: true
+                Layout.fillWidth: false
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                font.pixelSize: item1.height / 25
             }
         }
 
         ColumnLayout {
             id: columnLayout
-            y: 311
+            y: 452
             width: 151
-            height: 129
+            height: 58
+            anchors.bottom: nextValueBackground.top
+            anchors.bottomMargin: 20
+            anchors.horizontalCenterOffset: 1
             spacing: 20
             anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: nextValueBackground.top
-            anchors.bottomMargin: 30
-
-            RowLayout {
-                id: rowLayout
-                width: 232
-                height: 45
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                spacing: 10
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-
-                Text {
-                    id: speedValue
-                    color: "#ffffff"
-                    text: qsTr("0")
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    Layout.fillHeight: true
-                    verticalAlignment: Text.AlignVCenter
-                    horizontalAlignment: Text.AlignRight
-                    Layout.fillWidth: false
-                    font.pixelSize: item1.height / 25
-                }
-
-                Text {
-                    id: speedLabel
-                    color: "#ffffff"
-                    text: qsTr("км/ч")
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    Layout.fillHeight: true
-                    Layout.fillWidth: false
-                    verticalAlignment: Text.AlignVCenter
-                    horizontalAlignment: Text.AlignHCenter
-                    font.pixelSize: item1.height / 25
-                }
-            }
 
             Text {
                 id: currentCoordinate
@@ -437,10 +422,10 @@ Page {
                          : speedValue.text = Number(speed).toPrecision(3)
         }
         onDoCurrentTrackMark: {
-            currentCoordinate.text = value            
+            currentCoordinate.text = value
         }
         onDoNextTrackMarks: {
-            nextValue.text = value            
+            nextValue.text = value
         }
         onDoSatellitesFound: {
             sateliteAnimation.stop()
@@ -452,6 +437,11 @@ Page {
         }
         onDoSatellitesCount: {
             satellitesCount.text = count
+        }
+        onDoNotForget: {
+            nextValueAnimation.start();
+            nextValueBackgroundAnimation.start();
+            setButtonTextAnimation.start();
         }
     }
 }

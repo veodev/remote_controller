@@ -29,6 +29,9 @@ Page {
             anchors.top: parent.top
             anchors.topMargin: 20
             height: window.height/10
+            onReleased: {
+                backend.startSwitch()
+            }
         }
 
         CustomButton {
@@ -41,6 +44,9 @@ Page {
             anchors.rightMargin: 20
             width: (window.width / 2) - 20
             height: window.height/10
+            onReleased: {
+                backend.endSwitch()
+            }
         }
 
         TabBar {

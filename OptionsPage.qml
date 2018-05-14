@@ -92,7 +92,6 @@ Page {
                 id: tumblerLayout
                 width: 337
                 height: 205
-//                anchors.right: parent.right
                 anchors.rightMargin: 20
                 anchors.margins: 10
                 Label {
@@ -117,6 +116,9 @@ Page {
                         border.color: "white"
                         radius: 5
                     }
+                    onCurrentItemChanged: {
+                        console.log(currentItem.text)
+                    }
                 }
             }
 
@@ -124,7 +126,6 @@ Page {
                 id: soundSwitchLayout
                 width: 341
                 height: 56
-//                anchors.left: parent.left
                 anchors.leftMargin: 20
 
                 Text {

@@ -39,6 +39,7 @@ Controller::Controller(QObject *parent) : QObject(parent)
     connect(_appCore, &AppCore::doCurrentMeter, this, &Controller::onAppCoreCurrentMeter);
     connect(_appCore, &AppCore::doCurrentTrackMarks, this, &Controller::onAppCoreCurrentTrackMark);
     connect(_appCore, &AppCore::doCurrentSpeed, this, &Controller::onAppCoreCurrentSpeed);
+    connect(_appCore, &AppCore::doNotForget, this, &Controller::onDoNotForget);
 
     connect(this, &Controller::doSetSoundStatus, _appCore, &AppCore::onSetSoundStatus);
     connect(this, &Controller::doSetIpAddress, _appCore, &AppCore::onSetIpAddress);
@@ -163,6 +164,7 @@ bool Controller::getSoundStatus()
 
 void Controller::setSoundStatus(bool isEnabled)
 {
+    qDebug() << "Sound status: " << isEnabled;
     _isSoundEnabled = isEnabled;
     QSettings settings;
     settings.setValue("IsSoundEnable", isEnabled);
@@ -276,6 +278,11 @@ void Controller::onAppCoreCurrentTrackMark(QString value)
 void Controller::onAppCoreCurrentSpeed(double speed)
 {
     emit doCurrentSpeed(speed);
+}
+
+void Controller::onDoNotForget()
+{
+    emit doNotForget();
 }
 
 #ifdef ANDROID

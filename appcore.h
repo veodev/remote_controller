@@ -81,6 +81,8 @@ signals:
     void addItemToPlatformsModel(QString name);
     void addItemToMiscModel(QString name);
 
+    void doNotForget();
+
 public slots:
     void onConnectingToServer();
     void onDisconnectingToServer();
