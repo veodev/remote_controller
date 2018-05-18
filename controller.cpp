@@ -1,5 +1,6 @@
 #include "controller.h"
 #include "appcore.h"
+#include "audio.h"
 
 #include <QThread>
 #include <QMetaType>
@@ -11,7 +12,9 @@
 
 Controller::Controller(QObject *parent) : QObject(parent)
   , _appCoreThread(new QThread(this))
+  , _audioThread(new QThread(this))
   , _appCore(nullptr)
+  , _audio(nullptr)
 {
 #ifdef ANDROID
     keepScreenOn(true);
@@ -61,6 +64,13 @@ Controller::Controller(QObject *parent) : QObject(parent)
     emit doSetSoundStatus(_isSoundEnabled);
     setIpAddress(QSettings().value("IpAddress").toString());
     setSoundStatus(QSettings().value("IsSoundEnable").toBool());
+
+    _audioThread->setObjectName("mediaThread");
+    _audio = new Audio();
+    connect(_audioThread, &QThread::started, _audio, &Audio::initMedia);
+    connect(_appCore, &AppCore::doNotForget, _audio, &Audio::playSound);
+    _audio->moveToThread(_audioThread);
+    _audioThread->start();
 }
 
 Controller::~Controller()
@@ -105,6 +115,20 @@ Controller::~Controller()
     else {
         qDebug() << "AppCoreThread finished!";
     }
+
+
+    disconnect(_audioThread, &QThread::started, _audio, &Audio::initMedia);
+    disconnect(_appCore, &AppCore::doNotForget, _audio, &Audio::playSound);
+    _audioThread->quit();
+    _audioThread->wait(3000);
+    if (_audioThread->isRunning()) {
+        _audioThread->terminate();
+        _audioThread->wait(3000);
+    }
+    else {
+        qDebug() << "MediaThread finished!";
+    }
+
 }
 
 void Controller::nextTrackMark()
@@ -275,7 +299,7 @@ void Controller::onAppCoreCurrentTrackMark(QString value)
     emit doCurrentTrackMark(value);
 }
 
-void Controller::onAppCoreCurrentSpeed(double speed)
+void Controller::onAppCoreCurrentSpeed(float speed)
 {
     emit doCurrentSpeed(speed);
 }

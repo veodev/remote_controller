@@ -2,9 +2,11 @@
 #define CONTROLLER_H
 
 #include <QObject>
+#include <QMediaPlayer>
 
 class QThread;
 class AppCore;
+class Audio;
 
 class Controller : public QObject
 {
@@ -49,7 +51,7 @@ signals:
     void doNextTrackMarks(QString value);
     void doSetTrackMark();
     void doCurrentTrackMark(QString value);
-    void doCurrentSpeed(double speed);
+    void doCurrentSpeed(float speed);
     void doAddItemToBridgesModel(QString name);
     void doAddItemToPlatformsModel(QString name);
     void doAddItemToMiscModel(QString name);
@@ -93,13 +95,16 @@ private slots:
     void onSatellitesCount(int count);
     void onAppCoreCurrentMeter(int m);
     void onAppCoreCurrentTrackMark(QString value);
-    void onAppCoreCurrentSpeed(double speed);
+    void onAppCoreCurrentSpeed(float speed);
     void onDoNotForget();
 
 
 private:
     QThread* _appCoreThread;
+    QThread* _audioThread;
+
     AppCore* _appCore;
+    Audio* _audio;
 
     bool _isSoundEnabled;
     QString _ipAddress;

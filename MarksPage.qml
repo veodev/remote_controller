@@ -110,6 +110,8 @@ Page {
                 visible: false
                 ListView {
                     id: bridgesList
+                    flickableDirection: Flickable.VerticalFlick
+                    boundsBehavior: Flickable.StopAtBounds
                     anchors.fill: parent
                     delegate: Item {
                         id: bridgeslistItem
@@ -136,6 +138,8 @@ Page {
                 visible: false
                 ListView {
                     id: platformsList
+                    flickableDirection: Flickable.VerticalFlick
+                    boundsBehavior: Flickable.StopAtBounds
                     anchors.fill: parent
                     delegate: Item {
                         id: platformslistItem
@@ -162,6 +166,8 @@ Page {
                 visible: false
                 ListView {
                     id: miscList
+                    flickableDirection: Flickable.VerticalFlick
+                    boundsBehavior: Flickable.StopAtBounds
                     anchors.fill: parent
                     delegate: Item {
                         id: miscListItem
@@ -192,28 +198,22 @@ Page {
     Connections {
         target: backend
         onDoClearBridgesModel: {
-            bridgesListModel.clear()
-            console.log("Clear bridges model")
+            bridgesListModel.clear()            
         }
         onDoClearPlatformsModel: {
-            platformsListModel.clear()
-            console.log("Clear platforms model")
+            platformsListModel.clear()            
         }
         onDoClearMiscModel: {
-            miscListModel.clear()
-            console.log("Clear misc model")
+            miscListModel.clear()            
         }
         onDoAddItemToBridgesModel: {
-            bridgesListModel.append({buttonText: name})
-            console.log("Add to bridges: ", name)
+            bridgesListModel.append({buttonText: name})            
         }
         onDoAddItemToPlatformsModel: {
-            platformsListModel.append({buttonText: name})
-            console.log("Add to platforms: ", name)
+            platformsListModel.append({buttonText: name})            
         }
         onDoAddItemToMiscModel: {
-            miscListModel.append({buttonText: name})
-            console.log("Add to misc: ", name)
+            miscListModel.append({buttonText: name})            
         }
     }
 }

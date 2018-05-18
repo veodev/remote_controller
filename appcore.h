@@ -12,20 +12,19 @@
 
 #include "tmrussian.h"
 
-enum Headers {
-    UnknownHeader = -1,
-    StartRegistration = 1,
+enum Headers: char
+{
+    UnknownHeader,
+    StartRegistration,
     StopRegistration,
     CurrentMeter,
     CurrentSpeed,
-    CurrentTrackMarks,
-    Mark,
+    CurrentTrackMarks,    
     UpdateState,
+    ClearMarksLists,
+    UpdateMarksLists,
     SatellitesInfo,
-    SatellitesInUse,
-    BridgesList,
-    PlatformsList,
-    MiscList,
+    SatellitesInUse,    
     BridgesItem,
     PlatformsItem,
     MiscItem,
@@ -40,10 +39,6 @@ class AppCore : public QObject
 public:
     explicit AppCore(QObject *parent = nullptr);
 
-    int getKm();
-    int getPk();
-    int getM();
-
 private:
     void updateState();    
     void updateTrackMarks();
@@ -52,8 +47,9 @@ private:
 
     void updateBridgesModel();
     void updatePlatformsModel();
-    void updateMiscModel();
-    void readItem(Headers header, QStringList& list);
+    void updateMiscModel();    
+    void readMessageFromBuffer();    
+    void sendMessage(QByteArray& message);
 
 signals:
     void doSocketConnected();
@@ -65,7 +61,7 @@ signals:
     void doStopRegistration();
     void doIncrease();
     void doDecrease();
-    void doCurrentSpeed(double speed);
+    void doCurrentSpeed(float speed);
     void doNextTrackMarks(QString value);
     void doCurrentTrackMarks(QString value);
 
@@ -81,7 +77,7 @@ signals:
     void addItemToPlatformsModel(QString name);
     void addItemToMiscModel(QString name);
 
-    void doNotForget();
+    void doNotForget();    
 
 public slots:
     void onConnectingToServer();
@@ -93,8 +89,7 @@ public slots:
     void onSatellitesInUseUpdated(const QList<QGeoSatelliteInfo>& satellites);
     void onSatellitesError(QGeoSatelliteInfoSource::Error satelliteError);
 
-    void startWork();
-    void initMedia();
+    void startWork();    
     void initGeo();
     void onNextTrackMark();
     void onPrevTrackMark();
@@ -110,16 +105,16 @@ public slots:
     void onSetSoundStatus(bool isEnabled);
     void onConnectToServer();
 
+private slots:
+    void onPingTimerTimeout();
+
 private:
-    QTcpSocket* _tcpSocket;
-    QDataStream _dataStream;
-    QMediaPlayer* _mediaPlayer;
+    QTcpSocket* _tcpSocket;        
     TMRussian _trackMarks;
     TMRussian _tmpTrackMarks;
     int _km;
     int _pk;
-    int _m;
-    int _speed;
+    int _m;    
     bool _isSoundEnabled;
     bool _isRegistrationOn;
     Direction _direction;
@@ -131,14 +126,9 @@ private:
     QStringList _bridgesList;
     QStringList _platformsList;
     QStringList _miscList;
-
-    Headers _currentHeader;
-    int _currentCount;
-    int _currentCountStrings;
-    QString _currentString;
-    QByteArray _currentData;
-    bool _isFinishReadData;
-    bool _isReadList;    
+    QByteArray _messagesBuffer;
+    bool _isPingRemoteServer;
+    QTimer* _pingTimer;
 };
 
 #endif // APPCORE_H

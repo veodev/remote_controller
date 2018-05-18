@@ -7,37 +7,24 @@
 #include <QFile>
 #include <QtEndian>
 
+const int PING_INTERVAL_MS = 1000;
+
 AppCore::AppCore(QObject *parent) : QObject(parent)
   , _tcpSocket(Q_NULLPTR)
   , _km(0)
   , _pk(0)
-  , _m(0)
-  , _speed(0)
+  , _m(0)  
   , _isRegistrationOn(false)
   , _direction(UnknownDirection)
   , _viewType(KmPkM)
-  , _ipAddress(QSettings().value("IpAddress").toString())
-  , _currentHeader(UnknownHeader)
-  , _currentCount(-1)
-  , _currentCountStrings(-1)
-  , _isFinishReadData(true)
-  , _isReadList(false)
+  , _ipAddress(QSettings().value("IpAddress").toString())  
+  , _isPingRemoteServer(false)
+  , _pingTimer(Q_NULLPTR)
 {
-}
 
-int AppCore::getKm()
-{
-    return _km;
-}
-
-int AppCore::getPk()
-{
-    return _pk;
-}
-
-int AppCore::getM()
-{
-    return _m;
+    _pingTimer = new QTimer(this);
+    _pingTimer->setInterval(PING_INTERVAL_MS);
+    connect(_pingTimer, &QTimer::timeout, this, &AppCore::onPingTimerTimeout);
 }
 
 void AppCore::onSetIpAddress(QString ipAddress)
@@ -56,6 +43,14 @@ void AppCore::onConnectToServer()
 {
     onConnectingToServer();
 }
+
+void AppCore::onPingTimerTimeout()
+{
+    if (_isPingRemoteServer == false) {
+        onDisconnectingToServer();
+    }
+}
+
 
 void AppCore::updateState()
 {
@@ -80,7 +75,6 @@ void AppCore::updateTrackMarks()
     _trackMarks.setPk(_pk);
     _trackMarks.setM(_m);
     _trackMarks.updatePost();
-
     _tmpTrackMarks = _trackMarks;
 }
 
@@ -128,66 +122,132 @@ void AppCore::updateMiscModel()
     }
 }
 
-void AppCore::readItem(Headers header, QStringList& list)
+void AppCore::readMessageFromBuffer()
 {
-    if (_tcpSocket->bytesAvailable() >= 4 && _isFinishReadData == true) {
-        QByteArray array = _tcpSocket->read(4);
-        _currentCount = qFromLittleEndian<int>(reinterpret_cast<const uchar*>(array.data()));
-        _isFinishReadData = false;
-        _currentData.clear();
-    }
-
-    while (_tcpSocket->bytesAvailable()) {
-        if (_tcpSocket->bytesAvailable() >= _currentCount) {
-            for (int i = 0; i < _currentCount; ++i) {                
-                char byte;
-                _tcpSocket->read(&byte, 1);
-                _currentData.append(byte);
-            }
-            _isFinishReadData = true;
-            _currentCount = -1;
-            list.append(QString::fromUtf8(_currentData));            
-            --_currentCountStrings;
-
-            if (_currentCountStrings == 0) {
-                _currentCountStrings = -1;
-                _isReadList = false;
-                switch (header) {
-                case BridgesItem:
-                    emit updateBridgesModel();
+    Headers header = UnknownHeader;
+    while(true) {
+        if (_messagesBuffer.size() >= sizeof(qint16)) {
+            quint16 size = qFromLittleEndian<quint16>(reinterpret_cast<const uchar*>(_messagesBuffer.left(sizeof(quint16)).data()));
+            if (_messagesBuffer.size() >= size) {
+                _messagesBuffer.remove(0, sizeof(quint16));
+                header = static_cast<Headers>(_messagesBuffer.at(0));                
+                _messagesBuffer.remove(0, sizeof(Headers));
+                switch(header) {
+                case CurrentMeter:
+                    _m = qFromLittleEndian<int>(reinterpret_cast<const uchar*>(_messagesBuffer.left(sizeof(int)).data()));
+                    _messagesBuffer.remove(0, sizeof(int));                    
+                    checkDistance();
+                    updateMeters();
+                    updateCurrentCoordinate();
                     break;
-                case PlatformsItem:
-                    emit updatePlatformsModel();
+                case CurrentSpeed: {
+                    float speed = qFromLittleEndian<float>(reinterpret_cast<const uchar*>(_messagesBuffer.left(sizeof(float)).data()));
+                    _messagesBuffer.remove(0, sizeof(float));
+                    emit doCurrentSpeed(speed);
                     break;
-                case MiscItem:
-                    emit updateMiscModel();
+                }
+                case CurrentTrackMarks:
+                    _km = qFromLittleEndian<int>(reinterpret_cast<const uchar*>(_messagesBuffer.left(sizeof(int)).data()));
+                    _messagesBuffer.remove(0, sizeof(int));
+                    _pk = _messagesBuffer.at(0);
+                    _messagesBuffer.remove(0, sizeof(char));
+                    _m = qFromLittleEndian<int>(reinterpret_cast<const uchar*>(_messagesBuffer.left(sizeof(int)).data()));
+                    _messagesBuffer.remove(0, sizeof(int));
+                    updateTrackMarks();
+                    updateCurrentCoordinate();
+                    onNextTrackMark();
+                    _isSoundEnabled = true;
                     break;
+                case UpdateState:
+                    _isRegistrationOn = _messagesBuffer.at(0);
+                    _messagesBuffer.remove(0, sizeof(bool));
+                    _viewType = static_cast<ViewCoordinate>(_messagesBuffer.at(0));
+                    _messagesBuffer.remove(0, sizeof(ViewCoordinate));
+                    _direction = qFromLittleEndian<Direction>(reinterpret_cast<const uchar*>(_messagesBuffer.left(sizeof(int)).data()));
+                    _messagesBuffer.remove(0, sizeof(Direction));
+                    _km = qFromLittleEndian<int>(reinterpret_cast<const uchar*>(_messagesBuffer.left(sizeof(int)).data()));
+                    _messagesBuffer.remove(0, sizeof(int));
+                    _pk = _messagesBuffer.at(0);
+                    _messagesBuffer.remove(0, sizeof(char));
+                    _m = qFromLittleEndian<int>(reinterpret_cast<const uchar*>(_messagesBuffer.left(sizeof(int)).data()));
+                    _messagesBuffer.remove(0, sizeof(int));
+                    updateState();
+                    break;
+                case ClearMarksLists:
+                    _bridgesList.clear();
+                    _platformsList.clear();
+                    _miscList.clear();
+                    emit clearBridgesModel();
+                    emit clearPlatformsModel();
+                    emit clearMiscModel();
+                    break;
+                case UpdateMarksLists:
+                    updateBridgesModel();
+                    updatePlatformsModel();
+                    updateMiscModel();
+                    break;
+                case BridgesItem: {
+                    QString bridge = QString::fromUtf8(_messagesBuffer.left(size - sizeof(Headers)));
+                    _messagesBuffer.remove(0, size - sizeof(Headers));
+                    if (_bridgesList.contains(bridge) == false) {
+                        _bridgesList.append(bridge);
+                    }                    
+                    break;
+                }
+                case PlatformsItem: {
+                    QString platform = QString::fromUtf8(_messagesBuffer.left(size - sizeof(Headers)));
+                    _messagesBuffer.remove(0, size - sizeof(Headers));
+                    if (_platformsList.contains(platform) == false) {
+                        _platformsList.append(platform);
+                    }                    
+                    break;
+                }
+                case MiscItem: {
+                    QString misc = QString::fromUtf8(_messagesBuffer.left(size - sizeof(Headers)));
+                    _messagesBuffer.remove(0, size - sizeof(Headers));
+                    if (_miscList.contains(misc) == false) {
+                        _miscList.append(misc);
+                    }                    
+                    break;
+                }
+                case Ping: {
+                    _pingTimer->stop();
+                    QByteArray message;
+                    message.append(Ping);
+                    sendMessage(message);
+                    _isPingRemoteServer = true;
+                    _pingTimer->start();
+                    _isPingRemoteServer = false;
+                }
                 default:
                     break;
                 }
             }
-            break;
+            else {
+                break;
+            }
         }
-
-        if (_tcpSocket->bytesAvailable() < _currentCount) {
-            int countReadBytes = _tcpSocket->bytesAvailable();
-            _currentData.append(_tcpSocket->readAll());
-            _currentCount -= countReadBytes;
+        else {
             break;
         }
     }
 }
 
+void AppCore::sendMessage(QByteArray &message)
+{
+    if (_tcpSocket != Q_NULLPTR) {
+        quint16 size = static_cast<quint16>(message.size());
+        _tcpSocket->write(reinterpret_cast<char*>(&size), sizeof(quint16));
+        _tcpSocket->write(message);
+        _tcpSocket->flush();
+    }
+}
+
 void AppCore::checkDistance()
 {
-    if (_mediaPlayer->state() == QMediaPlayer::PlayingState) {
-        return;
-    }
     if (_isSoundEnabled == true) {
-        if ((_direction == ForwardDirection && (_m > 80 && _m < 100)) || (_direction == BackwardDirection && (_m > 0 && _m < 20))) {
+        if ((_direction == ForwardDirection && (_m >= 80 && _m < 100)) || (_direction == BackwardDirection && (_m > 0 && _m < 20))) {
             _isSoundEnabled = false;
-            _mediaPlayer->setPosition(0);
-            _mediaPlayer->play();
             emit doNotForget();
         }
     }
@@ -195,59 +255,56 @@ void AppCore::checkDistance()
 
 void AppCore::onPositionUpdate(const QGeoPositionInfo &info)
 {        
-    if (_tcpSocket!= Q_NULLPTR) {
-        _tcpSocket->flush();
-        _dataStream << SatellitesInfo
-               << float(info.coordinate().latitude())
-               << float(info.coordinate().longitude())
-               << float(info.coordinate().altitude())
-               << float(info.attribute(QGeoPositionInfo::Direction))
-               << float(info.attribute(QGeoPositionInfo::GroundSpeed))
-               << info.timestamp();        
-        _tcpSocket->flush();
-    }
+    float latitude = static_cast<float>(info.coordinate().latitude());
+    float longitude = static_cast<float>(info.coordinate().longitude());
+    float altitude = static_cast<float>(info.coordinate().altitude());
+    float direction = static_cast<float>(info.attribute((QGeoPositionInfo::Direction)));
+    float groundSpeed = static_cast<float>(info.attribute((QGeoPositionInfo::GroundSpeed)));
+    int year = static_cast<int>(info.timestamp().date().year());
+    char month = static_cast<char>(info.timestamp().date().month());
+    char day = static_cast<char>(info.timestamp().date().day());
+    char hours = static_cast<char>(info.timestamp().time().hour());
+    char minutes = static_cast<char>(info.timestamp().time().minute());
+    char seconds = static_cast<char>(info.timestamp().time().second());
+
+    QByteArray message;
+    message.append(SatellitesInfo);
+    message.append(reinterpret_cast<char*>(&latitude), sizeof(float));
+    message.append(reinterpret_cast<char*>(&longitude), sizeof(float));
+    message.append(reinterpret_cast<char*>(&altitude), sizeof(float));
+    message.append(reinterpret_cast<char*>(&direction), sizeof(float));
+    message.append(reinterpret_cast<char*>(&groundSpeed), sizeof(float));
+    message.append(reinterpret_cast<char*>(&year), sizeof(int));
+    message.append(month);
+    message.append(day);
+    message.append(hours);
+    message.append(minutes);
+    message.append(seconds);
+    sendMessage(message);
 }
 
 void AppCore::onSatellitesInUseUpdated(const QList<QGeoSatelliteInfo> &satellites)
 {
-    if (_tcpSocket!= Q_NULLPTR) {
-        auto count = satellites.count();
-        _dataStream << SatellitesInUse << count;
-        _tcpSocket->flush();
-        (count >= 3) ? emit satellitesFound() : emit satellitesNotFound();
-        emit satellitesCount(count);        
-    }
+    int count = satellites.count();
+    (count >= 3) ? emit satellitesFound() : emit satellitesNotFound();
+
+    QByteArray message;
+    message.append(SatellitesInUse);
+    message.append(reinterpret_cast<char*>(&count), sizeof(int));
+    sendMessage(message);
 }
 
 void AppCore::onSatellitesError(QGeoSatelliteInfoSource::Error satelliteError)
 {
-    switch (satelliteError) {
-    case QGeoSatelliteInfoSource::AccessError:
-        break;
-    case QGeoPositionInfoSource::ClosedError:
+    if (satelliteError == QGeoSatelliteInfoSource::ClosedError) {
         emit satellitesNotFound();
-        break;
-    case QGeoPositionInfoSource::NoError:
-        break;
-    case QGeoPositionInfoSource::UnknownSourceError:
-        break;
     }
-    qDebug() << satelliteError;
 }
 
 void AppCore::startWork()
 {
-    qDebug() << "AppCore started!";
-    initMedia();
     initGeo();
-}
-
-void AppCore::initMedia()
-{
-    _mediaPlayer = new QMediaPlayer(this);
-    _mediaPlayer->setMedia(QUrl("qrc:/sounds/bike_bell.wav"));
-    _mediaPlayer->setVolume(100);
-    qDebug() << "Media inited!";
+    qDebug() << "AppCore started!";
 }
 
 void AppCore::initGeo()
@@ -283,155 +340,98 @@ void AppCore::onPrevTrackMark()
 
 void AppCore::onSetTrackMark()
 {    
-    _dataStream << CurrentTrackMarks << _tmpTrackMarks.getKm() << _tmpTrackMarks.getPk();
-    _tcpSocket->flush();
+    int km = _tmpTrackMarks.getKm();
+    char pk = static_cast<char>(_tmpTrackMarks.getPk());
+    QByteArray message;
+    message.append(CurrentTrackMarks);
+    message.append(reinterpret_cast<char*>(&km), sizeof(int));
+    message.append(pk);
+    sendMessage(message);
 }
 
 void AppCore::onStartRegistration()
 {
-    if (_tcpSocket!= Q_NULLPTR) {
-        _dataStream << StartRegistration;
-        _tcpSocket->flush();
-    }
+    QByteArray message;
+    message.append(StartRegistration);
+    sendMessage(message);
 }
 
 void AppCore::onStopRegistration()
 {    
-    if (_tcpSocket!= Q_NULLPTR) {
-        _dataStream << StopRegistration;
-        _tcpSocket->flush();
-    }
+    QByteArray message;
+    message.append(StopRegistration);
+    sendMessage(message);
 }
 
 void AppCore::onStartSwitch()
 {    
-    if (_tcpSocket!= Q_NULLPTR) {
-        _dataStream << StartSwitch;
-        _tcpSocket->flush();
-    }
+    QByteArray message;
+    message.append(StartSwitch);
+    sendMessage(message);
 }
 
 void AppCore::onEndSwitch()
 {    
-    if (_tcpSocket!= Q_NULLPTR) {
-        _dataStream << EndSwitch;
-        _tcpSocket->flush();
-    }
+    QByteArray message;
+    message.append(EndSwitch);
+    sendMessage(message);
 }
 
 void AppCore::onBridgeSelected(QString name)
 {
-    if (_tcpSocket!= Q_NULLPTR) {
-        _dataStream << BridgesItem << _bridgesList.indexOf(name);
-        _tcpSocket->flush();
-    }
+    int index = _bridgesList.indexOf(name);
+    QByteArray message;
+    message.append(BridgesItem);
+    message.append(reinterpret_cast<char*>(&index), sizeof(int));
+    sendMessage(message);
 }
 
 void AppCore::onPlatformSelected(QString name)
 {    
-    if (_tcpSocket!= Q_NULLPTR) {
-        _dataStream << PlatformsItem << _platformsList.indexOf(name);
-        _tcpSocket->flush();
-    }
+    int index = _platformsList.indexOf(name);
+    QByteArray message;
+    message.append(PlatformsItem);
+    message.append(reinterpret_cast<char*>(&index), sizeof(int));
+    sendMessage(message);
 }
 
 void AppCore::onMiscSelected(QString name)
 {    
-    if (_tcpSocket!= Q_NULLPTR) {
-        _dataStream << MiscItem << _miscList.indexOf(name);
-        _tcpSocket->flush();
-    }
+    int index = _miscList.indexOf(name);
+    QByteArray message;
+    message.append(MiscItem);
+    message.append(reinterpret_cast<char*>(&index), sizeof(int));
+    sendMessage(message);
 }
 
 void AppCore::onConnectingToServer()
 {
     if (_tcpSocket == Q_NULLPTR) {
-        _tcpSocket = new QTcpSocket(this);
-        _dataStream.setDevice(_tcpSocket);
-        _tcpSocket->setReadBufferSize(32);
+        _tcpSocket = new QTcpSocket(this);        
         connect(_tcpSocket, &QTcpSocket::readyRead, this, &AppCore::onSocketReadyRead, Qt::DirectConnection);
         connect(_tcpSocket, &QTcpSocket::stateChanged, this, &AppCore::onSocketStateChanged);
-        _tcpSocket->connectToHost(_ipAddress, 49001, QTcpSocket::ReadWrite);        
+        _tcpSocket->connectToHost(_ipAddress, 49001, QTcpSocket::ReadWrite);
     }
 }
 
 void AppCore::onDisconnectingToServer()
 {
-    if (_tcpSocket != Q_NULLPTR) {
+    if (_tcpSocket != Q_NULLPTR) {        
+        _pingTimer->stop();
         _tcpSocket->disconnectFromHost();
         disconnect(_tcpSocket, &QTcpSocket::readyRead, this, &AppCore::onSocketReadyRead);
         disconnect(_tcpSocket, &QTcpSocket::stateChanged, this, &AppCore::onSocketStateChanged);
         _tcpSocket->deleteLater();
-        _tcpSocket = Q_NULLPTR;        
+        _tcpSocket = Q_NULLPTR;
     }
 }
 
 void AppCore::onSocketReadyRead()
 {
-    int header;
-    if (_isFinishReadData) {
-        _dataStream >> header;
-        _currentHeader = static_cast<Headers>(header);
+    while (_tcpSocket->bytesAvailable()) {
+        _messagesBuffer.append(_tcpSocket->readAll());
     }
-
-    switch (_currentHeader) {
-    case CurrentMeter:        
-        _dataStream >> _m;        
-        checkDistance();
-        updateMeters();
-        updateCurrentCoordinate();
-        break;
-    case CurrentSpeed:
-        double speed;
-        _dataStream >> speed;        
-        emit doCurrentSpeed(speed);
-        break;
-    case CurrentTrackMarks: {
-        _dataStream >> _km >> _pk >> _m;
-        updateTrackMarks();
-        updateCurrentCoordinate();        
-        onNextTrackMark();
-        _isSoundEnabled = true;
-        break;
-    }
-    case UpdateState:
-        int viewType;
-        int direction;
-        _dataStream >> _isRegistrationOn >> viewType >> direction >> _km >> _pk >> _m;        
-        _direction = static_cast<Direction>(direction);
-        _viewType = static_cast<ViewCoordinate>(viewType);
-        updateState();
-        break;
-    case BridgesList:
-        _bridgesList.clear();
-        emit clearBridgesModel();
-        _dataStream >> _currentCountStrings;        
-        _isReadList = (_currentCountStrings > 0);
-        break;    
-    case PlatformsList:        
-        _platformsList.clear();
-        emit clearPlatformsModel();
-        _dataStream >> _currentCountStrings;        
-        _isReadList = (_currentCountStrings > 0);
-        break;
-    case MiscList:        
-        _miscList.clear();
-        emit clearMiscModel();
-        _dataStream >> _currentCountStrings;        
-        _isReadList = (_currentCountStrings > 0);
-        break;
-    case BridgesItem:        
-        readItem(_currentHeader, _bridgesList);
-        break;
-    case PlatformsItem:        
-        readItem(_currentHeader, _platformsList);
-        break;
-    case MiscItem:        
-        readItem(_currentHeader, _miscList);
-        break;
-    default:
-        break;
-    }    
+    readMessageFromBuffer();
 }
 
 void AppCore::onSocketStateChanged(QAbstractSocket::SocketState state)

@@ -9,7 +9,7 @@ enum Direction
     BackwardDirection = -1
 };
 
-enum ViewCoordinate {
+enum ViewCoordinate: char{
     KmPkM,
     KmCommaM,
     Hectometer,

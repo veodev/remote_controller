@@ -25,7 +25,8 @@ SOURCES += main.cpp \
     appcore.cpp \
     tmrussian.cpp \
     trackmarks.cpp \
-    controller.cpp
+    controller.cpp \
+    audio.cpp
 
 RESOURCES += qml.qrc
 
@@ -45,7 +46,8 @@ HEADERS += \
     appcore.h \
     tmrussian.h \
     trackmarks.h \
-    controller.h
+    controller.h \
+    audio.h
 
 FORMS +=
 

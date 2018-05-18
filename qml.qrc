@@ -7,8 +7,6 @@
         <file>images/increase.png</file>
         <file>images/start_rec.png</file>
         <file>images/stop_rec.png</file>
-        <file>sounds/bell.wav</file>
-        <file>sounds/hourse.wav</file>
         <file>sounds/bike_bell.wav</file>
         <file>MainPage.qml</file>
         <file>OptionsPage.qml</file>
