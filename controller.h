@@ -25,14 +25,27 @@ public:
     Q_INVOKABLE void bridgeSelected(QString name);
     Q_INVOKABLE void platformSelected(QString name);
     Q_INVOKABLE void miscSelected(QString name);
-
-    Q_PROPERTY(bool _isSoundEnabled READ getSoundStatus WRITE setSoundStatus NOTIFY doSoundStatusChanged)
-    bool getSoundStatus();
-    void setSoundStatus(bool isEnabled);
+    Q_INVOKABLE void setNotifyThreshold(int threshold);
 
     Q_PROPERTY(QString _ipAddress READ getIpAddress WRITE setIpAddress NOTIFY doIpAddressChanged)
     QString & getIpAddress();
     void setIpAddress(QString ipAddress);
+
+    Q_PROPERTY(bool _isNotifyEnabled READ getNotifyStatus WRITE setNotifyStatus NOTIFY doNotifyStatusChanged)
+    void setNotifyStatus(bool isEnabled);
+    bool getNotifyStatus();
+
+    Q_PROPERTY(bool _isNotifySoundEnabled READ getNotifySoundStatus WRITE setNotifySoundStatus NOTIFY doNotifySoundStatusChanged)
+    void setNotifySoundStatus(bool isEnabled);
+    bool getNotifySoundStatus();
+
+    Q_PROPERTY(bool _isNotifyGraphicsEnabled READ getNotifyGraphicsStatus WRITE setNotifyGraphicsStatus NOTIFY doNotifyGraphicsStatusChanged)
+    void setNotifyGraphicsStatus(bool isEnabled);
+    bool getNotifyGraphicsStatus();
+
+    Q_PROPERTY(bool _notifyThresholdIndex READ getNotifyThresholdIndex WRITE setNotifyThresholdIndex NOTIFY doNotifyThresholdIndexChanged)
+    void setNotifyThresholdIndex(int index);
+    int getNotifyThresholdIndex();
 
 private:
 #ifdef ANDROID
@@ -67,13 +80,17 @@ signals:
     void doSatellitesNotFound();
     void doSatellitesCount(int count);
     void doCurrentMeter(int m);
-    void doSoundStatusChanged();
     void doIpAddressChanged();
-    void doSetSoundStatus(bool isEnabled);
     void doSetIpAddress(QString ipAddress);
     void doConnectToServer();
-    void doNotForget();
 
+    void doNotForgetSoundNotify();
+    void doNotForgetGraphicsNotify();
+    void doNotifyStatusChanged();
+    void doNotifySoundStatusChanged();
+    void doNotifyGraphicsStatusChanged();
+    void doNotifyThresholdIndexChanged();
+    void doSetNotifyThresholdChanged(int threshold);
 public slots:
 
 private slots:
@@ -106,8 +123,11 @@ private:
     AppCore* _appCore;
     Audio* _audio;
 
-    bool _isSoundEnabled;
     QString _ipAddress;
+    bool _isNotifyEnabled;
+    bool _isNotifySoundEnabled;
+    bool _isNotifyGraphicsEnabled;
+    int _notifyThresholdIndex;
 };
 
 #endif // CONTROLLER_H

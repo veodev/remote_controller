@@ -13,7 +13,8 @@ AppCore::AppCore(QObject *parent) : QObject(parent)
   , _tcpSocket(Q_NULLPTR)
   , _km(0)
   , _pk(0)
-  , _m(0)  
+  , _m(0)
+  , _isNotify(true)
   , _isRegistrationOn(false)
   , _direction(UnknownDirection)
   , _viewType(KmPkM)
@@ -34,14 +35,14 @@ void AppCore::onSetIpAddress(QString ipAddress)
     QTimer::singleShot(3000, this, &AppCore::onConnectingToServer);
 }
 
-void AppCore::onSetSoundStatus(bool isEnabled)
-{
-    _isSoundEnabled = isEnabled;        
-}
-
 void AppCore::onConnectToServer()
 {
     onConnectingToServer();
+}
+
+void AppCore::onNotifyThresholdChanged(int threshold)
+{
+    _notifyThreshold = threshold;
 }
 
 void AppCore::onPingTimerTimeout()
@@ -156,7 +157,7 @@ void AppCore::readMessageFromBuffer()
                     updateTrackMarks();
                     updateCurrentCoordinate();
                     onNextTrackMark();
-                    _isSoundEnabled = true;
+                    _isNotify = true;
                     break;
                 case UpdateState:
                     _isRegistrationOn = _messagesBuffer.at(0);
@@ -245,9 +246,11 @@ void AppCore::sendMessage(QByteArray &message)
 
 void AppCore::checkDistance()
 {
-    if (_isSoundEnabled == true) {
-        if ((_direction == ForwardDirection && (_m >= 80 && _m < 100)) || (_direction == BackwardDirection && (_m > 0 && _m < 20))) {
-            _isSoundEnabled = false;
+    if (_isNotify && _isRegistrationOn) {
+        bool nextForwardPostCondition = (_direction == ForwardDirection) && ((_m >= (100 - _notifyThreshold)) && _m < 100);
+        bool nextBackwardPostCondition = (_direction == BackwardDirection) && (_m > 0 && (_m <= _notifyThreshold));
+        if (nextForwardPostCondition || nextBackwardPostCondition) {
+            _isNotify = false;
             emit doNotForget();
         }
     }

@@ -10,11 +10,13 @@
     #include <QtAndroidExtras>
 #endif
 
+const QString AVICON31_IP_ADDRESS = "192.168.100.1";
+
 Controller::Controller(QObject *parent) : QObject(parent)
   , _appCoreThread(new QThread(this))
   , _audioThread(new QThread(this))
   , _appCore(nullptr)
-  , _audio(nullptr)
+  , _audio(nullptr)  
 {
 #ifdef ANDROID
     keepScreenOn(true);
@@ -44,7 +46,6 @@ Controller::Controller(QObject *parent) : QObject(parent)
     connect(_appCore, &AppCore::doCurrentSpeed, this, &Controller::onAppCoreCurrentSpeed);
     connect(_appCore, &AppCore::doNotForget, this, &Controller::onDoNotForget);
 
-    connect(this, &Controller::doSetSoundStatus, _appCore, &AppCore::onSetSoundStatus);
     connect(this, &Controller::doSetIpAddress, _appCore, &AppCore::onSetIpAddress);
     connect(this, &Controller::doConnectToServer, _appCore, &AppCore::onConnectToServer);
 
@@ -58,19 +59,23 @@ Controller::Controller(QObject *parent) : QObject(parent)
     connect(this, &Controller::doBridgeSelected, _appCore, &AppCore::onBridgeSelected);
     connect(this, &Controller::doPlatformSelected, _appCore, &AppCore::onPlatformSelected);
     connect(this, &Controller::doMiscSelected, _appCore, &AppCore::onMiscSelected);
+    connect(this, &Controller::doSetNotifyThresholdChanged, _appCore, &AppCore::onNotifyThresholdChanged);
 
     _appCore->moveToThread(_appCoreThread);
     _appCoreThread->start();
-    emit doSetSoundStatus(_isSoundEnabled);
-    setIpAddress(QSettings().value("IpAddress").toString());
-    setSoundStatus(QSettings().value("IsSoundEnable").toBool());
+
+    setIpAddress(QSettings().value("IpAddress", AVICON31_IP_ADDRESS).toString());
+    setNotifyStatus(QSettings().value("NotifyStatus", true).toBool());
+    setNotifySoundStatus(QSettings().value("NotifySoundStatus", true).toBool());
+    setNotifyGraphicsStatus(QSettings().value("NotifyGraphicsStatus", true).toBool());
+    setNotifyThresholdIndex(QSettings().value("NotifyThresholdIndex", 0).toInt());
 
     _audioThread->setObjectName("mediaThread");
     _audio = new Audio();
     connect(_audioThread, &QThread::started, _audio, &Audio::initMedia);
-    connect(_appCore, &AppCore::doNotForget, _audio, &Audio::playSound);
+    connect(this, &Controller::doNotForgetSoundNotify, _audio, &Audio::playSound);
     _audio->moveToThread(_audioThread);
-    _audioThread->start();
+    _audioThread->start();    
 }
 
 Controller::~Controller()
@@ -181,18 +186,9 @@ void Controller::miscSelected(QString name)
     emit doMiscSelected(name);
 }
 
-bool Controller::getSoundStatus()
-{
-    return _isSoundEnabled;
-}
-
-void Controller::setSoundStatus(bool isEnabled)
-{
-    qDebug() << "Sound status: " << isEnabled;
-    _isSoundEnabled = isEnabled;
-    QSettings settings;
-    settings.setValue("IsSoundEnable", isEnabled);
-    emit doSoundStatusChanged();
+void Controller::setNotifyThreshold(int threshold)
+{    
+    emit doSetNotifyThresholdChanged(threshold);
 }
 
 QString &Controller::getIpAddress()
@@ -207,6 +203,58 @@ void Controller::setIpAddress(QString ipAddress)
     settings.setValue("IpAddress", ipAddress);
     emit doIpAddressChanged();
     emit doSetIpAddress(_ipAddress);
+}
+
+void Controller::setNotifyStatus(bool isEnabled)
+{
+    _isNotifyEnabled = isEnabled;
+    QSettings settings;
+    settings.setValue("NotifyStatus", isEnabled);
+    emit doNotifyStatusChanged();
+}
+
+bool Controller::getNotifyStatus()
+{
+    return _isNotifyEnabled;
+}
+
+void Controller::setNotifySoundStatus(bool isEnabled)
+{
+    _isNotifySoundEnabled = isEnabled;
+    QSettings settings;
+    settings.setValue("NotifySoundStatus", isEnabled);
+    emit doNotifySoundStatusChanged();
+}
+
+bool Controller::getNotifySoundStatus()
+{
+    return _isNotifySoundEnabled;
+}
+
+void Controller::setNotifyGraphicsStatus(bool isEnabled)
+{
+    _isNotifyGraphicsEnabled = isEnabled;
+    QSettings settings;
+    settings.setValue("NotifyGraphicsStatus", isEnabled);
+    emit doNotifyGraphicsStatusChanged();
+}
+
+bool Controller::getNotifyGraphicsStatus()
+{
+    return _isNotifyGraphicsEnabled;
+}
+
+void Controller::setNotifyThresholdIndex(int index)
+{
+    _notifyThresholdIndex = index;
+    QSettings settings;
+    settings.setValue("NotifyThresholdIndex", index);
+    emit doNotifyThresholdIndexChanged();
+}
+
+int Controller::getNotifyThresholdIndex()
+{
+    return _notifyThresholdIndex;
 }
 
 void Controller::onAppCoreConnected()
@@ -306,7 +354,14 @@ void Controller::onAppCoreCurrentSpeed(float speed)
 
 void Controller::onDoNotForget()
 {
-    emit doNotForget();
+    if (_isNotifyEnabled) {
+        if (_isNotifyGraphicsEnabled) {
+            emit doNotForgetGraphicsNotify();
+        }
+        if (_isNotifySoundEnabled) {
+            emit doNotForgetSoundNotify();
+        }
+    }
 }
 
 #ifdef ANDROID

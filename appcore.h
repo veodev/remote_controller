@@ -50,6 +50,7 @@ private:
     void updateMiscModel();    
     void readMessageFromBuffer();    
     void sendMessage(QByteArray& message);
+    void checkDistance();
 
 signals:
     void doSocketConnected();
@@ -77,14 +78,13 @@ signals:
     void addItemToPlatformsModel(QString name);
     void addItemToMiscModel(QString name);
 
-    void doNotForget();    
+    void doNotForget();
 
 public slots:
     void onConnectingToServer();
     void onDisconnectingToServer();
     void onSocketReadyRead();
     void onSocketStateChanged(QAbstractSocket::SocketState state);
-    void checkDistance();    
     void onPositionUpdate(const QGeoPositionInfo& info);
     void onSatellitesInUseUpdated(const QList<QGeoSatelliteInfo>& satellites);
     void onSatellitesError(QGeoSatelliteInfoSource::Error satelliteError);
@@ -101,9 +101,9 @@ public slots:
     void onBridgeSelected(QString name);
     void onPlatformSelected(QString name);
     void onMiscSelected(QString name);
-    void onSetIpAddress(QString ipAddress);
-    void onSetSoundStatus(bool isEnabled);
+    void onSetIpAddress(QString ipAddress);    
     void onConnectToServer();
+    void onNotifyThresholdChanged(int threshold);
 
 private slots:
     void onPingTimerTimeout();
@@ -114,8 +114,9 @@ private:
     TMRussian _tmpTrackMarks;
     int _km;
     int _pk;
-    int _m;    
-    bool _isSoundEnabled;
+    int _m;
+    int _notifyThreshold;
+    bool _isNotify;
     bool _isRegistrationOn;
     Direction _direction;
     ViewCoordinate _viewType;

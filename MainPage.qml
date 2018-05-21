@@ -9,6 +9,15 @@ Page {
 //    height: 1280
     title: qsTr("Главная")
 
+    function stopBlinking() {
+        nextValueAnimation.stop()
+        nextValue.color = "#e90000"
+        nextValueBackgroundAnimation.stop()
+        nextValueBackground.color = "white"
+        setButtonTextAnimation.stop()
+        setButton.opacity = 1
+    }
+
     Rectangle {
         id: rectangle
         width: 720
@@ -243,12 +252,7 @@ Page {
             font.pixelSize: 30
             onClicked: {
                 backend.prevTrackMark()
-                nextValueAnimation.stop()
-                nextValue.color = "#e90000"
-                nextValueBackgroundAnimation.stop()
-                nextValueBackground.color = "white"
-                setButtonTextAnimation.stop()
-                setButton.opacity = 1
+                stopBlinking()
             }
         }
 
@@ -269,12 +273,7 @@ Page {
             focusPolicy: Qt.NoFocus
             onClicked: {
                 backend.nextTrackMark()
-                nextValueAnimation.stop()
-                nextValue.color = "#e90000"
-                nextValueBackgroundAnimation.stop()
-                nextValueBackground.color = "white"
-                setButtonTextAnimation.stop()
-                setButton.opacity = 1
+                stopBlinking()
             }
         }
 
@@ -313,12 +312,7 @@ Page {
             }
             onReleased: {
                 backend.setTrackMark()
-                nextValueAnimation.stop()
-                nextValue.color = "#e90000"
-                nextValueBackgroundAnimation.stop()
-                nextValueBackground.color = "white"
-                setButtonTextAnimation.stop()
-                setButton.opacity = 1
+                stopBlinking()
             }
         }
 
@@ -426,6 +420,7 @@ Page {
         }
         onDoNextTrackMarks: {
             nextValue.text = value
+            stopBlinking()
         }
         onDoSatellitesFound: {
             sateliteAnimation.stop()
@@ -438,7 +433,7 @@ Page {
         onDoSatellitesCount: {
             satellitesCount.text = count
         }
-        onDoNotForget: {
+        onDoNotForgetGraphicsNotify: {
             nextValueAnimation.start();
             nextValueBackgroundAnimation.start();
             setButtonTextAnimation.start();
