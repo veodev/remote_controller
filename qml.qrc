@@ -13,5 +13,6 @@
         <file>CustomButton.qml</file>
         <file>images/satellite.png</file>
         <file>MarksPage.qml</file>
+        <file>CustomSwitch.qml</file>
     </qresource>
 </RCC>

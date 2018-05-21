@@ -9,6 +9,17 @@ Page {
 //    height: 1280
     title: qsTr("Настройки")
 
+    function enableOptionsLayout(isEnable) {
+        if (isEnable) {
+            optionsNotifyLayout.opacity = 1
+            optionsNotifyLayout.enabled = true
+        }
+        else {
+            optionsNotifyLayout.opacity = 0.3
+            optionsNotifyLayout.enabled = false
+        }
+    }
+
     Rectangle {
         id: rectangle
         anchors.fill: parent
@@ -113,13 +124,12 @@ Page {
                         verticalAlignment: Text.AlignVCenter
                     }
 
-                    Switch {
-                        id: notifySoundStatus
-                        text: qsTr("Switch")
+                    CustomSwitch {
+                        id: notifySoundStatus                        
                         Layout.fillWidth: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         Component.onCompleted: notifySoundStatus.checked = backend._isNotifySoundEnabled
-                        onCheckedChanged: backend._isNotifySoundEnabled = notifySoundStatus.checked
+                        onCheckedChanged: backend._isNotifySoundEnabled = notifySoundStatus.checked                        
                     }
                     anchors.leftMargin: 20
                 }
@@ -143,9 +153,8 @@ Page {
                         font.pointSize: 20
                     }
 
-                    Switch {
-                        id: notifyGraphicsStatus
-                        text: qsTr("Switch")
+                    CustomSwitch {
+                        id: notifyGraphicsStatus                        
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         Component.onCompleted: notifyGraphicsStatus.checked = backend._isNotifyGraphicsEnabled
                         onCheckedChanged: backend._isNotifyGraphicsEnabled = notifyGraphicsStatus.checked
@@ -199,6 +208,9 @@ Page {
                     }
                 }
             }
+            Component.onCompleted: {
+                enableOptionsLayout(notifyStatusSwitch.checked)
+            }
         }
 
         Label {
@@ -232,11 +244,14 @@ Page {
                 verticalAlignment: Text.AlignVCenter
             }
 
-            Switch {
+            CustomSwitch {
                 id: notifyStatusSwitch
-                text: qsTr("Switch")
-                Component.onCompleted: notifyStatusSwitch.checked = backend._isNotifyEnabled
-                onCheckedChanged: backend._isNotifyEnabled = notifyStatusSwitch.checked
+                Component.onCompleted: notifyStatusSwitch.checked = backend._isNotifyEnabled                
+                onCheckedChanged: {
+                    backend._isNotifyEnabled = notifyStatusSwitch.checked
+                    enableOptionsLayout(notifyStatusSwitch.checked)
+                }
+
             }
             anchors.leftMargin: 20
         }
