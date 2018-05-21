@@ -11,7 +11,6 @@
         <file>MainPage.qml</file>
         <file>OptionsPage.qml</file>
         <file>CustomButton.qml</file>
-        <file>Spinner.qml</file>
         <file>images/satellite.png</file>
         <file>MarksPage.qml</file>
     </qresource>
