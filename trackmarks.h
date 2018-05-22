@@ -29,11 +29,8 @@ public:
     virtual QString getString() = 0;
     virtual QString getHmString() = 0;
     virtual QString getKmString() = 0;
-    virtual QString getMeterString() = 0;
-    virtual int getTotalMeter();
-    virtual void addMeter(int meter);
-    virtual void addCentimeter(int cm);
-    virtual void syncPole(int a, int b) = 0;
+    virtual QString getMeterString() = 0;    
+    virtual void addMeter(int meter);        
     virtual void reset() = 0;
     Direction getDirection() const;
     void setDirection(const Direction& direction);

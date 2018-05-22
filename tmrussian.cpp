@@ -23,12 +23,6 @@ QString TMRussian::getMeterString()
     return QString("%1 м").arg(totalMeters);
 }
 
-void TMRussian::syncPole(int a, int b)
-{
-    _km = a;
-    _pk = b;
-}
-
 void TMRussian::addMeter(int meter)
 {
     if (_direction == ForwardDirection) {

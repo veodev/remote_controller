@@ -15,8 +15,7 @@ public:
     QString getString();
     QString getHmString();
     QString getKmString();
-    QString getMeterString();
-    void syncPole(int a, int b);
+    QString getMeterString();    
     void addMeter(int meter);
     void setPostKm(unsigned char n, int value);
     void setPostPk(unsigned char n, int value);

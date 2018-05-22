@@ -9,7 +9,7 @@ Audio::Audio(QObject *parent) : QObject(parent)
 void Audio::initMedia()
 {
     _mediaPlayer = new QMediaPlayer(this);
-    _mediaPlayer->setMedia(QUrl("qrc:/sounds/bike_bell.wav"));
+    _mediaPlayer->setMedia(QUrl("qrc:/sounds/WOWSENSOR-HIT.WAV"));
     _mediaPlayer->setVolume(100);
     qDebug() << "Media inited!";
 }
