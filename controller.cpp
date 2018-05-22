@@ -74,6 +74,7 @@ Controller::Controller(QObject *parent) : QObject(parent)
     _audio = new Audio();
     connect(_audioThread, &QThread::started, _audio, &Audio::initMedia);
     connect(this, &Controller::doNotForgetSoundNotify, _audio, &Audio::playSound);
+    connect(_appCore, &AppCore::doSoundLostLink, _audio, &Audio::playDisconnected);
     _audio->moveToThread(_audioThread);
     _audioThread->start();    
 }

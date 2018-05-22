@@ -7,7 +7,8 @@
 #include <QFile>
 #include <QtEndian>
 
-const int PING_INTERVAL_MS = 1000;
+const int PING_INTERVAL_MS = 300;
+const int WATCHDOG_INTERVAL_MS = 1000;
 
 AppCore::AppCore(QObject *parent) : QObject(parent)
   , _tcpSocket(Q_NULLPTR)
@@ -18,14 +19,17 @@ AppCore::AppCore(QObject *parent) : QObject(parent)
   , _isRegistrationOn(false)
   , _direction(UnknownDirection)
   , _viewType(KmPkM)
-  , _ipAddress(QSettings().value("IpAddress").toString())  
-  , _isPingRemoteServer(false)
+  , _ipAddress(QSettings().value("IpAddress").toString())
   , _pingTimer(Q_NULLPTR)
 {
 
     _pingTimer = new QTimer(this);
     _pingTimer->setInterval(PING_INTERVAL_MS);
     connect(_pingTimer, &QTimer::timeout, this, &AppCore::onPingTimerTimeout);
+
+    _watchdog = new QTimer(this);
+    _watchdog->setInterval(WATCHDOG_INTERVAL_MS);
+    connect(_watchdog, &QTimer::timeout, this, &AppCore::onWatchdogTimeout);
 }
 
 void AppCore::onSetIpAddress(QString ipAddress)
@@ -47,9 +51,16 @@ void AppCore::onNotifyThresholdChanged(int threshold)
 
 void AppCore::onPingTimerTimeout()
 {
-    if (_isPingRemoteServer == false) {
-        onDisconnectingToServer();
-    }
+    QByteArray message;
+    message.append(PingRemoteServer);
+    sendMessage(message);
+}
+
+void AppCore::onWatchdogTimeout()
+{
+    _watchdog->stop();
+    onDisconnectingToServer();
+    emit doSoundLostLink();
 }
 
 
@@ -211,15 +222,13 @@ void AppCore::readMessageFromBuffer()
                     }                    
                     break;
                 }
-                case Ping: {
-                    _pingTimer->stop();
-                    QByteArray message;
-                    message.append(Ping);
-                    sendMessage(message);
-                    _isPingRemoteServer = true;
-                    _pingTimer->start();
-                    _isPingRemoteServer = false;
+                case PingRemoteControl: {
+                    if (_watchdog->isActive() == false) {
+                        _watchdog->stop();
+                    }
+                    _watchdog->start();
                 }
+
                 default:
                     break;
                 }
@@ -414,6 +423,9 @@ void AppCore::onConnectingToServer()
         connect(_tcpSocket, &QTcpSocket::readyRead, this, &AppCore::onSocketReadyRead, Qt::DirectConnection);
         connect(_tcpSocket, &QTcpSocket::stateChanged, this, &AppCore::onSocketStateChanged);
         _tcpSocket->connectToHost(_ipAddress, 49001, QTcpSocket::ReadWrite);
+        if (_pingTimer->isActive() == false) {
+            _pingTimer->start();
+        }
     }
 }
 

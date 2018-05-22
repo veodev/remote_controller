@@ -15,6 +15,7 @@ signals:
 public slots:
     void initMedia();
     void playSound();
+    void playDisconnected();
 
 private:
     QMediaPlayer* _mediaPlayer;

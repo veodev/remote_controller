@@ -7,7 +7,6 @@
         <file>images/increase.png</file>
         <file>images/start_rec.png</file>
         <file>images/stop_rec.png</file>
-        <file>sounds/bike_bell.wav</file>
         <file>MainPage.qml</file>
         <file>OptionsPage.qml</file>
         <file>CustomButton.qml</file>
@@ -15,5 +14,6 @@
         <file>MarksPage.qml</file>
         <file>CustomSwitch.qml</file>
         <file>sounds/WOWSENSOR-HIT.WAV</file>
+        <file>sounds/siren1.wav</file>
     </qresource>
 </RCC>

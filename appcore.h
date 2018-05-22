@@ -29,6 +29,8 @@ enum Headers: char
     PlatformsItem,
     MiscItem,
     Ping,
+    PingRemoteControl,
+    PingRemoteServer,
     StartSwitch,
     EndSwitch
 };
@@ -80,6 +82,8 @@ signals:
 
     void doNotForget();
 
+    void doSoundLostLink();
+
 public slots:
     void onConnectingToServer();
     void onDisconnectingToServer();
@@ -107,6 +111,7 @@ public slots:
 
 private slots:
     void onPingTimerTimeout();
+    void onWatchdogTimeout();
 
 private:
     QTcpSocket* _tcpSocket;        
@@ -128,8 +133,8 @@ private:
     QStringList _platformsList;
     QStringList _miscList;
     QByteArray _messagesBuffer;
-    bool _isPingRemoteServer;
     QTimer* _pingTimer;
+    QTimer* _watchdog;
 };
 
 #endif // APPCORE_H
