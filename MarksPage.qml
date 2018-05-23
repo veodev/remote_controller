@@ -21,6 +21,7 @@ Page {
         CustomButton {
             id: startSwitchButton
             text: "Начало\n стрелки"
+            z: 2
             spacing: 5
             anchors.right: endSwitchButton.left
             anchors.rightMargin: 20
@@ -38,6 +39,7 @@ Page {
             id: endSwitchButton
             x: 401
             text: "Конец\n стрелки"
+            z: 2
             anchors.top: parent.top
             anchors.topMargin: 20
             anchors.right: parent.right
@@ -52,6 +54,7 @@ Page {
         TabBar {
             id: tabBar
             position: TabBar.Header
+            z: 2
             anchors.top: startSwitchButton.bottom
             anchors.topMargin: 40
             anchors.right: parent.right
@@ -102,7 +105,7 @@ Page {
             anchors.left: parent.left
             anchors.leftMargin: 20
             anchors.top: tabBar.bottom
-            anchors.topMargin: 10
+            anchors.topMargin: 6
             currentIndex: tabBar.currentIndex
 
             Item {
@@ -110,6 +113,10 @@ Page {
                 visible: false
                 ListView {
                     id: bridgesList
+                    anchors.rightMargin: 0
+                    anchors.bottomMargin: 0
+                    anchors.leftMargin: 0
+                    anchors.topMargin: 0
                     flickableDirection: Flickable.VerticalFlick
                     boundsBehavior: Flickable.StopAtBounds
                     anchors.fill: parent
@@ -189,6 +196,16 @@ Page {
                     }
                 }
             }
+        }
+
+        Rectangle {
+            id: rectangle1
+            x: 20
+            y: 20
+            width: 680
+            height: 168
+            color: "#08104d"
+            z: 1
         }
     }
 
