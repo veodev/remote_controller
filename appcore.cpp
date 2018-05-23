@@ -223,9 +223,6 @@ void AppCore::readMessageFromBuffer()
                     break;
                 }
                 case PingRemoteControl: {
-                    if (_watchdog->isActive() == false) {
-                        _watchdog->stop();
-                    }
                     _watchdog->start();
                 }
 
