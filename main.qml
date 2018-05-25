@@ -26,10 +26,22 @@ ApplicationWindow {
         ToolButton {
             id: toolButton
             implicitWidth: 100
-            text: stackView.depth > 1 ? "\u25C0" : "\u2630"
+            implicitHeight: 100
             font.pixelSize: Qt.application.font.pixelSize * 1.6
             onClicked: {
                 (stackView.depth > 1) ? stackView.pop() : drawer.open()
+            }
+            Image {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                source: stackView.depth > 1 ? "images/back_72.png" : "images/menu_72.png"
+            }
+
+            background: Rectangle {
+                border.color: "white"
+                border.width: 2
+                color: toolButton.down ? "white" : "#00000000"
+                radius: 5
             }
         }
 
