@@ -4,9 +4,10 @@ import QtQuick.Controls 2.2
 import QtQuick.Window 2.2
 
 Page {
-    id: item1
-//    width: 720
-//    height: 1280
+    id: page
+    width: 720
+    height: 1280
+    anchors.fill: parent
     title: qsTr("Главная")
 
     function stopBlinking() {
@@ -31,13 +32,13 @@ Page {
 
         RowLayout {
             id: statusBarRowLayout
-            height: 48
+            height: 85
             anchors.right: parent.right
-            anchors.rightMargin: 10
+            anchors.rightMargin: 0
             anchors.left: parent.left
-            anchors.leftMargin: 10
+            anchors.leftMargin: 0
             anchors.top: parent.top
-            anchors.topMargin: 10
+            anchors.topMargin: 0
             spacing: 30
 
             RowLayout {
@@ -46,7 +47,7 @@ Page {
                 height: 100
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 Layout.fillWidth: false
-                spacing: 0
+                spacing: 10
 
                 Text {
                     id: satellitesCount
@@ -54,13 +55,14 @@ Page {
                     height: 4
                     color: "#ffffff"
                     text: qsTr("0")
+                    font.family: "Times New Roman"
                     Layout.minimumHeight: 48
                     Layout.minimumWidth: 30
-                    topPadding: 27
+                    topPadding: 50
                     verticalAlignment: Text.AlignVCenter
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
-                    font.pixelSize: 20
+                    font.pixelSize: 30
                 }
 
                 Image {
@@ -68,7 +70,7 @@ Page {
                     width: 48
                     height: 48
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    source: "images/satellite.png"
+                    source: "images/satellites_notfound_72.png"
 
                     SequentialAnimation {
                         id: sateliteAnimation
@@ -96,7 +98,7 @@ Page {
                 width: 48
                 height: 48
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                source: "images/stop_rec.png"
+                source: "images/stop_rec_72.png"
 
                 SequentialAnimation {
                     id: registrationAnimation
@@ -123,7 +125,7 @@ Page {
                 width: 48
                 height: 48
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                source: "images/increase.png"
+                source: "images/increase_72.png"
             }
 
             Image {
@@ -134,7 +136,7 @@ Page {
                 Layout.fillHeight: false
                 Layout.fillWidth: false
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                source: "images/disconnected.png"
+                source: "images/disconnected_72.png"
 
                 SequentialAnimation {
                     id: connectionAnimation
@@ -160,15 +162,15 @@ Page {
         Rectangle {
             id: nextValueBackground
             x: 160
-            y: 478
-            width: item1.height / 3
+            y: 734
+            width: page.height / 3
             height: width
             color: "#ffffff"
             radius: height / 2
-            anchors.horizontalCenterOffset: 0
-            anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: minusButton.top
-            anchors.bottomMargin: 20
+            anchors.bottomMargin: 65
+            anchors.horizontalCenterOffset: 1
+            anchors.horizontalCenter: parent.horizontalCenter
 
             Label {
                 id: nextValue
@@ -218,15 +220,14 @@ Page {
 
         CustomButton {
             id: marksButton
-            y: 133
-            height: item1.height/10
+            height: page.height/8
             text: "Отметки"
             anchors.bottom: rowLayout.top
-            anchors.bottomMargin: 70
+            anchors.bottomMargin: 50
             anchors.right: parent.right
-            anchors.rightMargin: 20
+            anchors.rightMargin: 40
             anchors.left: parent.left
-            anchors.leftMargin: 20
+            anchors.leftMargin: 40
             font.pointSize: 30
             Layout.minimumWidth: 220
             Layout.fillHeight: true
@@ -240,12 +241,12 @@ Page {
             id: minusButton
             y: 915
             width: (setButton.width / 2) - 20
-            height: item1.height/10
+            height: setButton.height
             text: "-"
             anchors.bottom: setButton.top
-            anchors.bottomMargin: 20
+            anchors.bottomMargin: 30
             anchors.left: parent.left
-            anchors.leftMargin: 20
+            anchors.leftMargin: 30
             Layout.fillWidth: true
             focusPolicy: Qt.NoFocus
             Layout.fillHeight: true
@@ -261,12 +262,12 @@ Page {
             x: 399
             y: 915
             width: (setButton.width / 2) - 20
-            height: item1.height/10
+            height: setButton.height
             text: "+"
             anchors.bottom: setButton.top
-            anchors.bottomMargin: 20
+            anchors.bottomMargin: 30
             anchors.right: parent.right
-            anchors.rightMargin: 20
+            anchors.rightMargin: 30
             font.pixelSize: 30
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -280,14 +281,14 @@ Page {
         CustomButton {
             id: setButton
             y: 1064
-            height: item1.height/10
+            height: page.height/8
             text: qsTr("Установить")
             anchors.right: parent.right
-            anchors.rightMargin: 20
+            anchors.rightMargin: 30
             anchors.left: parent.left
-            anchors.leftMargin: 20
+            anchors.leftMargin: 30
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: 20
+            anchors.bottomMargin: 30
             font.pointSize: 30
             Layout.fillHeight: true
             Layout.fillWidth: true
@@ -319,12 +320,12 @@ Page {
         RowLayout {
             id: rowLayout
             x: 280
-            y: 370
+            y: 631
             width: 232
             height: 45
             anchors.bottom: columnLayout.top
-            anchors.bottomMargin: 30
-            anchors.horizontalCenterOffset: 15
+            anchors.bottomMargin: 70
+            anchors.horizontalCenterOffset: 0
             anchors.horizontalCenter: parent.horizontalCenter
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             spacing: 10
@@ -335,23 +336,42 @@ Page {
                 id: speedValue
                 color: "#ffffff"
                 text: qsTr("0")
+                font.pixelSize: 70
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                 Layout.fillHeight: true
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignRight
                 Layout.fillWidth: false
-                font.pixelSize: item1.height / 25
             }
 
             Text {
                 id: speedLabel
                 color: "#ffffff"
                 text: qsTr("км/ч")
+                font.pixelSize: 70
                 Layout.fillHeight: true
                 Layout.fillWidth: false
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
-                font.pixelSize: item1.height / 25
+            }
+
+            SequentialAnimation {
+                id: speedAnimation
+                running: false
+                loops: Animation.Infinite
+                OpacityAnimator {
+                    target: rowLayout
+                    from: 0;
+                    to: 1;
+                    duration: 500
+                }
+
+                OpacityAnimator {
+                    target: rowLayout
+                    from: 1;
+                    to: 0;
+                    duration: 500
+                }
             }
         }
 
@@ -361,7 +381,7 @@ Page {
             width: 151
             height: 58
             anchors.bottom: nextValueBackground.top
-            anchors.bottomMargin: 20
+            anchors.bottomMargin: 70
             anchors.horizontalCenterOffset: 1
             spacing: 20
             anchors.horizontalCenter: parent.horizontalCenter
@@ -372,12 +392,12 @@ Page {
                 height: 48
                 color: "#ffffff"
                 text: "0 km"
+                font.pixelSize: page.height / 19
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                font.pixelSize: item1.height / 20
             }
         }
     }
@@ -385,35 +405,51 @@ Page {
     Connections {
         target: backend
         onDoSocketConnected: {
-            connectionStatusImage.source = "images/connected.png"
+            connectionStatusImage.source = "images/connected_72.png"
             connectionAnimation.stop()
             connectionStatusImage.opacity = 1
         }
         onDoSocketDisconnected: {
-            connectionStatusImage.source = "images/disconnected.png"
+            connectionStatusImage.source = "images/disconnected_72.png"
             connectionAnimation.start()
         }
         onDoCurrentMeter: {
             mValue.text = m
         }
         onDoStartRegistration: {
-            registrationStatusImage.source = "images/start_rec.png"
+            registrationStatusImage.source = "images/start_rec_72.png"
             registrationAnimation.start()
         }
         onDoStopRegistration: {
             registrationAnimation.stop()
-            registrationStatusImage.source = "images/stop_rec.png"
+            registrationStatusImage.source = "images/stop_rec_72.png"
             registrationStatusImage.opacity = 1
         }
         onDoIncrease: {
-            registrationOptionImage.source = "images/increase.png"
+            registrationOptionImage.source = "images/increase_72.png"
         }
         onDoDecrease: {
-            registrationOptionImage.source = "images/decrease.png"
+            registrationOptionImage.source = "images/decrease_72.png"
         }
         onDoCurrentSpeed: {
             (speed < 10) ? speedValue.text = Number(speed).toPrecision(2)
                          : speedValue.text = Number(speed).toPrecision(3)
+
+            if (speed >= 30) {
+                speedValue.color = "red"
+                speedLabel.color = "red"
+                speedValue.font.bold = true
+                speedLabel.font.bold = true
+                speedAnimation.start()
+            }
+            else {
+                speedValue.color = "white"
+                speedLabel.color = "white"
+                speedValue.font.bold = false
+                speedLabel.font.bold = false
+                speedAnimation.stop()
+                rowLayout.opacity = 1
+            }
         }
         onDoCurrentTrackMark: {
             currentCoordinate.text = value
@@ -423,10 +459,12 @@ Page {
             stopBlinking()
         }
         onDoSatellitesFound: {
+            satellitesImage.source = "images/satellites_found_72.png"
             sateliteAnimation.stop()
             satellitesImage.opacity = 1
         }
         onDoSatellitesNotFound: {
+            satellitesImage.source = "images/satellites_notfound_72.png"
             sateliteAnimation.start()
             satellitesCount.text = 0
         }

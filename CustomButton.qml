@@ -6,7 +6,7 @@ Button {
     property alias customButtonText: button.text
     contentItem: Text {
         text: button.text
-        font.pointSize: 24
+        font.pointSize: 30
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
         color: button.down ? "black" : "white"

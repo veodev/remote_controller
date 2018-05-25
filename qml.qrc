@@ -15,5 +15,13 @@
         <file>CustomSwitch.qml</file>
         <file>sounds/WOWSENSOR-HIT.WAV</file>
         <file>sounds/siren1.wav</file>
+        <file>images/decrease_72.png</file>
+        <file>images/increase_72.png</file>
+        <file>images/stop_rec_72.png</file>
+        <file>images/start_rec_72.png</file>
+        <file>images/disconnected_72.png</file>
+        <file>images/connected_72.png</file>
+        <file>images/satellites_found_72.png</file>
+        <file>images/satellites_notfound_72.png</file>
     </qresource>
 </RCC>

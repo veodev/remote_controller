@@ -6,19 +6,19 @@ Switch {
     text: control.checked ? "Вкл": "Выкл"
 
     indicator: Rectangle {
-        width: 48
-        height: 26
+        width: 80
+        height: 40
         x: control.leftPadding
         y: parent.height / 2 - height / 2
-        radius: 13
+        radius: 20
         color: control.checked ? "#17a81a" : "#ffffff"
         border.color: control.checked ? "#17a81a" : "#cccccc"
 
         Rectangle {
             x: control.checked ? parent.width - width : 0
-            width: 26
-            height: 26
-            radius: 13
+            width: 40
+            height: 40
+            radius: 20
             color: control.down ? "#cccccc" : "#ffffff"
             border.color: control.checked ? (control.down ? "#17a81a" : "#21be2b") : "#999999"
         }

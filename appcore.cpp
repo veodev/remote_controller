@@ -301,6 +301,8 @@ void AppCore::onSatellitesInUseUpdated(const QList<QGeoSatelliteInfo> &satellite
     message.append(SatellitesInUse);
     message.append(reinterpret_cast<char*>(&count), sizeof(int));
     sendMessage(message);
+
+    emit satellitesCount(count);
 }
 
 void AppCore::onSatellitesError(QGeoSatelliteInfoSource::Error satelliteError)

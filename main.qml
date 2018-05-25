@@ -14,7 +14,7 @@ ApplicationWindow {
     property bool isClose: false
 
     MainPage {id: mainPage; visible: false;}
-    MarksPage {id: marksPage; visible: false;}
+    MarksPage {id: marksPage; visible: false; }
     OptionsPage {id: optionsPage; visible: false;}
 
     header: ToolBar {
@@ -61,6 +61,7 @@ ApplicationWindow {
             ItemDelegate {
                 id: connectItem
                 text: qsTr("Главная")
+                font.pointSize: 20
                 width: parent.width
                 onClicked: {
                     stackView.pop()
@@ -71,6 +72,7 @@ ApplicationWindow {
             ItemDelegate {
                 id: optionsPageItem
                 text: qsTr("Настройки")
+                font.pointSize: 20
                 width: parent.width
                 onClicked: {
                     stackView.push(optionsPage)
@@ -81,6 +83,7 @@ ApplicationWindow {
             ItemDelegate {
                 id: startRegistrationItem
                 text: qsTr("Включить\nрегистрацию")
+                font.pointSize: 20
                 width: parent.width
                 onClicked: {
                     drawer.close()
@@ -91,6 +94,7 @@ ApplicationWindow {
             ItemDelegate {
                 id: stopRegistrationItem
                 text: qsTr("Выключить\nрегистрацию")
+                font.pointSize: 20
                 width: parent.width
                 onClicked: {
                     drawer.close()
@@ -101,6 +105,7 @@ ApplicationWindow {
             ItemDelegate {
                 id: exitItem
                 text: qsTr("Выход")
+                font.pointSize: 20
                 width: parent.width
                 onClicked: {
                     isClose = true

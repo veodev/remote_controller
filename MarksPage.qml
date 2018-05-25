@@ -5,9 +5,10 @@ import QtQuick.Controls.Styles 1.4
 import QtQuick.Dialogs 1.2
 
 Page {
-    id: marksPage
-//    width: 720
-//    height: 1280
+    id: page
+    width: 720
+    height: 1280
+    anchors.fill: parent
     title: qsTr("Отметки")
 
     Rectangle {
@@ -53,18 +54,20 @@ Page {
 
         TabBar {
             id: tabBar
+            height: window.height/20
             position: TabBar.Header
             z: 2
             anchors.top: startSwitchButton.bottom
-            anchors.topMargin: 40
+            anchors.topMargin: 80
             anchors.right: parent.right
             anchors.rightMargin: 20
             anchors.left: parent.left
-            anchors.leftMargin: 20
+            anchors.leftMargin: 20            
 
             TabButton {
                 id: bridgesTabButton
-                text: qsTr("Мосты")
+                height: tabBar.height
+                text: qsTr("Мосты")                
                 onReleased: {
                     bridgesItem.visible = true
                     platformsItem.visible = false
@@ -74,8 +77,7 @@ Page {
 
             TabButton {
                 id: platformsTabButton
-                x: 201
-                y: 0
+                height: tabBar.height
                 text: qsTr("Платформы")
                 onReleased: {
                     bridgesItem.visible = false
@@ -86,6 +88,7 @@ Page {
 
             TabButton {
                 id: miscTabButton
+                height: tabBar.height
                 text: qsTr("Прочие")
                 onReleased: {
                     bridgesItem.visible = false
@@ -128,7 +131,9 @@ Page {
 
                         CustomButton {
                             anchors.fill: parent
-                            anchors.margins: 10
+                            anchors.topMargin: 60
+                            anchors.leftMargin: 0
+                            anchors.rightMargin: 0
                             text: buttonText
                             onReleased: {
                                 backend.bridgeSelected(buttonText)
@@ -156,7 +161,9 @@ Page {
 
                         CustomButton {
                             anchors.fill: parent
-                            anchors.margins: 10
+                            anchors.topMargin: 60
+                            anchors.leftMargin: 0
+                            anchors.rightMargin: 0
                             text: buttonText
                             onReleased: {
                                 backend.platformSelected(buttonText)
@@ -184,7 +191,9 @@ Page {
 
                         CustomButton {
                             anchors.fill: parent
-                            anchors.margins: 10
+                            anchors.topMargin: 60
+                            anchors.leftMargin: 0
+                            anchors.rightMargin: 0
                             text: buttonText
                             onReleased: {
                                 backend.miscSelected(buttonText)

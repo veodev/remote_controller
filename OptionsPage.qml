@@ -5,8 +5,9 @@ import QtQuick.Controls.Styles 1.4
 
 Page {
     id: page
-//    width: 720
-//    height: 1280
+    width: 720
+    height: 1280
+    anchors.fill: parent
     title: qsTr("Настройки")
 
     function enableOptionsLayout(isEnable) {
@@ -57,6 +58,8 @@ Page {
                     regExp:  /^((?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])\.){0,3}(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])$/
                 }
                 text: backend._ipAddress
+                topPadding: 10
+                font.bold: true
                 Layout.fillWidth: true
                 onEditingFinished: backend._ipAddress = ipAddressText.text
             }
@@ -91,7 +94,7 @@ Page {
         RowLayout {
             id: optionsNotifyLayout
             y: 331
-            height: 165
+            height: 222
             anchors.top: statusNotifyLayout.bottom
             anchors.topMargin: 40
             anchors.right: parent.right
@@ -183,6 +186,8 @@ Page {
                 Tumbler {
                     id: notifyThreshold
                     height: 100
+                    font.pointSize: 16
+                    font.bold: true
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     Layout.fillHeight: true
                     Layout.fillWidth: false
@@ -215,9 +220,13 @@ Page {
 
         Label {
             id: notifyLabel
-            x: 157
+            x: 39
+            width: 447
+            height: 50
             color: "#ffffff"
             text: qsTr("Напоминание о координате:")
+            anchors.horizontalCenter: parent.horizontalCenter
+            horizontalAlignment: Text.AlignHCenter
             anchors.top: line1.bottom
             anchors.topMargin: 40
             font.pointSize: 20
@@ -227,7 +236,7 @@ Page {
             id: statusNotifyLayout
             x: 190
             width: 341
-            height: 56
+            height: 106
             anchors.top: notifyLabel.bottom
             anchors.topMargin: 40
             Text {
