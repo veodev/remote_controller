@@ -5,16 +5,15 @@ import QtQuick.Window 2.2
 
 Page {
     id: page
-    width: 720
-    height: 1280
-    anchors.fill: parent
+//    width: 720
+//    height: 1280
+//    anchors.fill: parent
     title: qsTr("Главная")
 
     function stopBlinking() {
-        nextValueAnimation.stop()
-        nextValue.color = "#e90000"
-        nextValueBackgroundAnimation.stop()
-        nextValueBackground.color = "white"
+        nextValueAnimation.stop()        
+        nextValue.opacity = 1
+        nextValueBackground.border.width = 0
         setButtonTextAnimation.stop()
         setButton.opacity = 1
     }
@@ -76,19 +75,8 @@ Page {
                         id: sateliteAnimation
                         running: true
                         loops: Animation.Infinite
-                        OpacityAnimator {
-                            target: satellitesImage
-                            from: 0;
-                            to: 1;
-                            duration: 500
-                        }
-
-                        OpacityAnimator {
-                            target: satellitesImage
-                            from: 1;
-                            to: 0;
-                            duration: 500
-                        }
+                        OpacityAnimator {target: satellitesImage; from: 0; to: 1; duration: 500}
+                        OpacityAnimator {target: satellitesImage; from: 1; to: 0; duration: 500}
                     }
                 }
             }
@@ -104,19 +92,8 @@ Page {
                     id: registrationAnimation
                     running: false
                     loops: Animation.Infinite
-                    OpacityAnimator {
-                        target: registrationStatusImage
-                        from: 0;
-                        to: 1;
-                        duration: 500
-                    }
-
-                    OpacityAnimator {
-                        target: registrationStatusImage
-                        from: 1;
-                        to: 0;
-                        duration: 500
-                    }
+                    OpacityAnimator {target: registrationStatusImage; from: 0; to: 1; duration: 1000}
+                    OpacityAnimator {target: registrationStatusImage; from: 1; to: 0; duration: 1000}
                 }
             }
 
@@ -142,19 +119,8 @@ Page {
                     id: connectionAnimation
                     running: true
                     loops: Animation.Infinite
-                    OpacityAnimator {
-                        target: connectionStatusImage
-                        from: 0;
-                        to: 1;
-                        duration: 500
-                    }
-
-                    OpacityAnimator {
-                        target: connectionStatusImage
-                        from: 1;
-                        to: 0;
-                        duration: 500
-                    }
+                    OpacityAnimator {target: connectionStatusImage; from: 0; to: 1; duration: 500}
+                    OpacityAnimator {target: connectionStatusImage; from: 1; to: 0; duration: 500}
                 }
             }
         }
@@ -162,64 +128,52 @@ Page {
         Rectangle {
             id: nextValueBackground
             x: 160
-            y: 734
-            width: page.height / 3
-            height: width
+            y: 734            
+            width: page.width - 40
+            height: width / 2
             color: "#ffffff"
-            radius: height / 2
+            radius: height / 10
             anchors.bottom: minusButton.top
             anchors.bottomMargin: 65
             anchors.horizontalCenterOffset: 1
             anchors.horizontalCenter: parent.horizontalCenter
+            border.color: "red"
+            border.width: 0
 
             Label {
-                id: nextValue
+                id: nextValue                
                 anchors.centerIn: parent
                 width: nextValue.height
-                color: "#e90000"
-                text: qsTr("0000/0000 км")
+                color: "#08104d"
+                text: qsTr("00000/00000 км")
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
-                font.pixelSize: nextValueBackground.height/8
+                font.pixelSize: nextValueBackground.height/5
                 font.bold: true
-                SequentialAnimation on color{
+
+                SequentialAnimation {
                     id: nextValueAnimation
                     running: false
                     loops: Animation.Infinite
-                    ColorAnimation {
-                        from: "#e90000"
-                        to: "white"
-                        duration: 500
-                    }
-
-                    ColorAnimation {
-                        from: "white"
-                        to: "#e90000"
-                        duration: 500
-                    }
-                }
+                    OpacityAnimator {target: nextValue; from: 0.3; to: 1; duration: 500}
+                    OpacityAnimator {target: nextValue; from: 1; to: 0.3; duration: 500}
+                }               
             }
-
-            SequentialAnimation on color{
-                id: nextValueBackgroundAnimation
-                running: false
-                loops: Animation.Infinite
-                ColorAnimation {
-                    from: "white"
-                    to: "red"
-                    duration: 500
+            Button {
+                anchors.fill: parent
+                background: Rectangle {
+                    border.color: "#00000000"
+                    color: "#00000000"
                 }
-
-                ColorAnimation {
-                    from: "red"
-                    to: "white"
-                    duration: 500
+                onReleased: {
+                    backend.setTrackMark()
+                    stopBlinking()
                 }
             }
         }
 
-        CustomButton {
-            id: marksButton
+        CustomButton {            
+            id: marksButton            
             height: page.height/8
             text: "Отметки"
             anchors.bottom: rowLayout.top
@@ -228,7 +182,7 @@ Page {
             anchors.rightMargin: 40
             anchors.left: parent.left
             anchors.leftMargin: 40
-            font.pointSize: 30
+            customButtonFontPointSize: 30
             Layout.minimumWidth: 220
             Layout.fillHeight: true
             focusPolicy: Qt.StrongFocus
@@ -242,7 +196,7 @@ Page {
             y: 915
             width: (setButton.width / 2) - 20
             height: setButton.height
-            text: "-"
+            text: "Пред."
             anchors.bottom: setButton.top
             anchors.bottomMargin: 30
             anchors.left: parent.left
@@ -250,10 +204,9 @@ Page {
             Layout.fillWidth: true
             focusPolicy: Qt.NoFocus
             Layout.fillHeight: true
-            font.pixelSize: 30
+            customButtonFontPointSize: 30
             onClicked: {
-                backend.prevTrackMark()
-                stopBlinking()
+                backend.prevTrackMark()                
             }
         }
 
@@ -263,18 +216,17 @@ Page {
             y: 915
             width: (setButton.width / 2) - 20
             height: setButton.height
-            text: "+"
+            text: "След."
             anchors.bottom: setButton.top
             anchors.bottomMargin: 30
             anchors.right: parent.right
             anchors.rightMargin: 30
-            font.pixelSize: 30
+            customButtonFontPointSize: 30
             Layout.fillWidth: true
             Layout.fillHeight: true
             focusPolicy: Qt.NoFocus
             onClicked: {
-                backend.nextTrackMark()
-                stopBlinking()
+                backend.nextTrackMark()                
             }
         }
 
@@ -289,27 +241,16 @@ Page {
             anchors.leftMargin: 30
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 30
-            font.pointSize: 30
+            customButtonFontPointSize: 30
             Layout.fillHeight: true
             Layout.fillWidth: true
-            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter            
             SequentialAnimation {
                 id: setButtonTextAnimation
                 running: false
                 loops: Animation.Infinite
-                OpacityAnimator {
-                    target: setButton
-                    from: 0;
-                    to: 1;
-                    duration: 500
-                }
-
-                OpacityAnimator {
-                    target: setButton
-                    from: 1;
-                    to: 0;
-                    duration: 500
-                }
+                OpacityAnimator {target: setButton; from: 0.3; to: 1; duration: 500}
+                OpacityAnimator {target: setButton; from: 1; to: 0.3; duration: 500}
             }
             onReleased: {
                 backend.setTrackMark()
@@ -335,42 +276,18 @@ Page {
             Text {
                 id: speedValue
                 color: "#ffffff"
-                text: qsTr("0")
+                text: qsTr("0 км/ч")
                 font.pixelSize: 70
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                font.bold: false
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 Layout.fillHeight: true
-                verticalAlignment: Text.AlignVCenter
-                horizontalAlignment: Text.AlignRight
+                verticalAlignment: Text.AlignVCenter                
                 Layout.fillWidth: false
-            }
-
-            Text {
-                id: speedLabel
-                color: "#ffffff"
-                text: qsTr("км/ч")
-                font.pixelSize: 70
-                Layout.fillHeight: true
-                Layout.fillWidth: false
-                verticalAlignment: Text.AlignVCenter
-                horizontalAlignment: Text.AlignHCenter
-            }
-
-            SequentialAnimation {
-                id: speedAnimation
-                running: false
-                loops: Animation.Infinite
-                OpacityAnimator {
-                    target: rowLayout
-                    from: 0;
-                    to: 1;
-                    duration: 500
-                }
-
-                OpacityAnimator {
-                    target: rowLayout
-                    from: 1;
-                    to: 0;
-                    duration: 500
+                SequentialAnimation on color {
+                    id: speedAnimation
+                    loops: Animation.Infinite
+                    ColorAnimation { from: "white"; to: "red"; duration: 500 }
+                    ColorAnimation { from: "red"; to: "white"; duration: 500 }
                 }
             }
         }
@@ -384,7 +301,7 @@ Page {
             anchors.bottomMargin: 70
             anchors.horizontalCenterOffset: 1
             spacing: 20
-            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.horizontalCenter: parent.horizontalCenter            
 
             Text {
                 id: currentCoordinate
@@ -412,6 +329,12 @@ Page {
         onDoSocketDisconnected: {
             connectionStatusImage.source = "images/disconnected_72.png"
             connectionAnimation.start()
+
+            stopBlinking()
+            registrationAnimation.stop()
+            registrationStatusImage.source = "images/stop_rec_72.png"
+            registrationStatusImage.opacity = 1
+            speedValue.text = "0 км/ч"
         }
         onDoCurrentMeter: {
             mValue.text = m
@@ -432,21 +355,13 @@ Page {
             registrationOptionImage.source = "images/decrease_72.png"
         }
         onDoCurrentSpeed: {
-            (speed < 10) ? speedValue.text = Number(speed).toPrecision(2)
-                         : speedValue.text = Number(speed).toPrecision(3)
-
+            speedValue.text = Number(speed).toPrecision(((speed < 10) ? 2 : 3)) + " км/ч"
             if (speed >= 30) {
-                speedValue.color = "red"
-                speedLabel.color = "red"
-                speedValue.font.bold = true
-                speedLabel.font.bold = true
+                speedValue.color = "red"                                
                 speedAnimation.start()
             }
             else {
-                speedValue.color = "white"
-                speedLabel.color = "white"
-                speedValue.font.bold = false
-                speedLabel.font.bold = false
+                speedValue.color = "white"                                                
                 speedAnimation.stop()
                 rowLayout.opacity = 1
             }
@@ -456,7 +371,8 @@ Page {
         }
         onDoNextTrackMarks: {
             nextValue.text = value
-            stopBlinking()
+            nextValueAnimation.stop()
+            nextValue.opacity = 1
         }
         onDoSatellitesFound: {
             satellitesImage.source = "images/satellites_found_72.png"
@@ -473,8 +389,8 @@ Page {
         }
         onDoNotForgetGraphicsNotify: {
             nextValueAnimation.start();
-            nextValueBackgroundAnimation.start();
             setButtonTextAnimation.start();
+            nextValueBackground.border.width = 50
         }
     }
 }

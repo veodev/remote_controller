@@ -25,5 +25,6 @@
         <file>images/satellites_notfound_72.png</file>
         <file>images/menu_72.png</file>
         <file>images/back_72.png</file>
+        <file>CustomTumbler.qml</file>
     </qresource>
 </RCC>

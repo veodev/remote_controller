@@ -11,6 +11,7 @@
 #endif
 
 const QString AVICON31_IP_ADDRESS = "192.168.100.1";
+const int MAX_MARKS_ITEM_TEXT_LENGTH = 30;
 
 Controller::Controller(QObject *parent) : QObject(parent)
   , _appCoreThread(new QThread(this))
@@ -172,19 +173,22 @@ void Controller::endSwitch()
     emit doEndSwitch();
 }
 
-void Controller::bridgeSelected(QString name)
-{
-    emit doBridgeSelected(name);
+void Controller::bridgeSelected(int index)
+{    
+    qDebug() << index;
+    emit doBridgeSelected(index);
 }
 
-void Controller::platformSelected(QString name)
+void Controller::platformSelected(int index)
 {
-    emit doPlatformSelected(name);
+    qDebug() << index;
+    emit doPlatformSelected(index);
 }
 
-void Controller::miscSelected(QString name)
-{
-    emit doMiscSelected(name);
+void Controller::miscSelected(int index)
+{    
+    qDebug() << index;
+    emit doMiscSelected(index);
 }
 
 void Controller::setNotifyThreshold(int threshold)
@@ -308,19 +312,22 @@ void Controller::onAppCoreClearMiscModel()
     emit doClearMiscModel();
 }
 
-void Controller::onAppCoreAddItemToBridgesModel(QString item)
-{
-    emit doAddItemToBridgesModel(item);    
+void Controller::onAppCoreAddItemToBridgesModel(QString item,  int index)
+{    
+    checkItemLength(item);
+    emit doAddItemToBridgesModel(item, index);
 }
 
-void Controller::onAppCoreAddItemToPlatformsModel(QString item)
+void Controller::onAppCoreAddItemToPlatformsModel(QString item, int index)
 {
-    emit doAddItemToPlatformsModel(item);    
+    checkItemLength(item);
+    emit doAddItemToPlatformsModel(item, index);
 }
 
-void Controller::onAppCoreAddItemToMiscModel(QString item)
+void Controller::onAppCoreAddItemToMiscModel(QString item, int index)
 {
-    emit doAddItemToMiscModel(item);    
+    checkItemLength(item);
+    emit doAddItemToMiscModel(item, index);
 }
 
 void Controller::onSatellitesFound()
@@ -390,3 +397,12 @@ void Controller::keepScreenOn(bool on)
     });
 }
 #endif
+
+void Controller::checkItemLength(QString &item)
+{
+    int size = item.size();
+    if (size > MAX_MARKS_ITEM_TEXT_LENGTH) {
+        item.truncate(MAX_MARKS_ITEM_TEXT_LENGTH - 4);
+        item.append(QString("..."));
+    }
+}

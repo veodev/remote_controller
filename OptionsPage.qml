@@ -1,13 +1,13 @@
 import QtQuick 2.6
-import QtQuick.Controls 2.3
+import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.3
 import QtQuick.Controls.Styles 1.4
 
 Page {
     id: page
-    width: 720
-    height: 1280
-    anchors.fill: parent
+////    width: 720
+////    height: 1280
+//    anchors.fill: parent
     title: qsTr("Настройки")
 
     function enableOptionsLayout(isEnable) {
@@ -94,7 +94,7 @@ Page {
         RowLayout {
             id: optionsNotifyLayout
             y: 331
-            height: 222
+            height: 350
             anchors.top: statusNotifyLayout.bottom
             anchors.topMargin: 40
             anchors.right: parent.right
@@ -183,14 +183,15 @@ Page {
                     font.pointSize: 20
                 }
 
-                Tumbler {
+                CustomTumbler {
                     id: notifyThreshold
                     height: 100
-                    font.pointSize: 16
+                    width: 50
+                    font.pointSize: 20
                     font.bold: true
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     Layout.fillHeight: true
-                    Layout.fillWidth: false
+                    Layout.fillWidth: true
                     focusPolicy: Qt.NoFocus
                     visibleItemCount: 5
                     model: ListModel {
@@ -200,11 +201,6 @@ Page {
                             }
                             notifyThreshold.currentIndex = backend._notifyThresholdIndex
                         }
-                    }
-                    background: Rectangle {
-                        color:"white"
-                        border.color: "white"
-                        radius: 5
                     }
 
                     onCurrentIndexChanged: {
@@ -263,6 +259,6 @@ Page {
 
             }
             anchors.leftMargin: 20
-        }
+        }       
     }
 }

@@ -22,9 +22,9 @@ public:
     Q_INVOKABLE void stopRegistration();
     Q_INVOKABLE void startSwitch();
     Q_INVOKABLE void endSwitch();
-    Q_INVOKABLE void bridgeSelected(QString name);
-    Q_INVOKABLE void platformSelected(QString name);
-    Q_INVOKABLE void miscSelected(QString name);
+    Q_INVOKABLE void bridgeSelected(int index);
+    Q_INVOKABLE void platformSelected(int index);
+    Q_INVOKABLE void miscSelected(int index);
     Q_INVOKABLE void setNotifyThreshold(int threshold);
 
     Q_PROPERTY(QString _ipAddress READ getIpAddress WRITE setIpAddress NOTIFY doIpAddressChanged)
@@ -51,6 +51,7 @@ private:
 #ifdef ANDROID
     void keepScreenOn(bool on);
 #endif
+    void checkItemLength(QString& item);
 
 signals:
     void doSocketConnected();
@@ -65,12 +66,12 @@ signals:
     void doSetTrackMark();
     void doCurrentTrackMark(QString value);
     void doCurrentSpeed(float speed);
-    void doAddItemToBridgesModel(QString name);
-    void doAddItemToPlatformsModel(QString name);
-    void doAddItemToMiscModel(QString name);
-    void doBridgeSelected(QString name);
-    void doPlatformSelected(QString name);
-    void doMiscSelected(QString name);
+    void doAddItemToBridgesModel(QString name, int index);
+    void doAddItemToPlatformsModel(QString name, int index);
+    void doAddItemToMiscModel(QString name, int index);
+    void doBridgeSelected(int index);
+    void doPlatformSelected(int index);
+    void doMiscSelected(int index);
     void doStartSwitch();
     void doEndSwitch();
     void doClearBridgesModel();
@@ -104,9 +105,9 @@ private slots:
     void onAppCoreClearBridgesModel();
     void onAppCoreClearPlatformsModel();
     void onAppCoreClearMiscModel();
-    void onAppCoreAddItemToBridgesModel(QString item);
-    void onAppCoreAddItemToPlatformsModel(QString item);
-    void onAppCoreAddItemToMiscModel(QString item);
+    void onAppCoreAddItemToBridgesModel(QString item, int index);
+    void onAppCoreAddItemToPlatformsModel(QString item,  int index);
+    void onAppCoreAddItemToMiscModel(QString item, int index);
     void onSatellitesFound();
     void onSatellitesNotFound();
     void onSatellitesCount(int count);

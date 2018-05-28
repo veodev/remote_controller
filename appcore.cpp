@@ -115,22 +115,22 @@ void AppCore::updateCurrentCoordinate()
 
 void AppCore::updateBridgesModel()
 {    
-    for (QString& item: _bridgesList) {
-        emit addItemToBridgesModel(item);
+    for (int i = 0; i < _bridgesList.size(); ++i) {
+        emit addItemToBridgesModel(_bridgesList.at(i), i);
     }
 }
 
 void AppCore::updatePlatformsModel()
 {
-    for (QString& item: _platformsList) {
-        emit addItemToPlatformsModel(item);
+    for (int i = 0; i < _platformsList.size(); ++i) {
+        emit addItemToPlatformsModel(_platformsList.at(i), i);
     }
 }
 
 void AppCore::updateMiscModel()
 {
-    for (QString& item: _miscList) {
-        emit addItemToMiscModel(item);
+    for (int i = 0; i < _miscList.size(); ++i) {
+        emit addItemToMiscModel(_miscList.at(i), i);
     }
 }
 
@@ -388,31 +388,34 @@ void AppCore::onEndSwitch()
     sendMessage(message);
 }
 
-void AppCore::onBridgeSelected(QString name)
+void AppCore::onBridgeSelected(int index)
 {
-    int index = _bridgesList.indexOf(name);
-    QByteArray message;
-    message.append(BridgesItem);
-    message.append(reinterpret_cast<char*>(&index), sizeof(int));
-    sendMessage(message);
+    if (index >= 0 && index < _bridgesList.size()) {
+        QByteArray message;
+        message.append(BridgesItem);
+        message.append(reinterpret_cast<char*>(&index), sizeof(int));
+        sendMessage(message);
+    }
 }
 
-void AppCore::onPlatformSelected(QString name)
+void AppCore::onPlatformSelected(int index)
 {    
-    int index = _platformsList.indexOf(name);
-    QByteArray message;
-    message.append(PlatformsItem);
-    message.append(reinterpret_cast<char*>(&index), sizeof(int));
-    sendMessage(message);
+    if (index >= 0 && index < _platformsList.size()) {
+        QByteArray message;
+        message.append(PlatformsItem);
+        message.append(reinterpret_cast<char*>(&index), sizeof(int));
+        sendMessage(message);
+    }
 }
 
-void AppCore::onMiscSelected(QString name)
+void AppCore::onMiscSelected(int index)
 {    
-    int index = _miscList.indexOf(name);
-    QByteArray message;
-    message.append(MiscItem);
-    message.append(reinterpret_cast<char*>(&index), sizeof(int));
-    sendMessage(message);
+    if (index >= 0 && index < _miscList.size()) {
+        QByteArray message;
+        message.append(MiscItem);
+        message.append(reinterpret_cast<char*>(&index), sizeof(int));
+        sendMessage(message);
+    }
 }
 
 void AppCore::onConnectingToServer()

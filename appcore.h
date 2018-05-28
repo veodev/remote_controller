@@ -76,9 +76,9 @@ signals:
     void clearPlatformsModel();
     void clearMiscModel();
 
-    void addItemToBridgesModel(QString name);
-    void addItemToPlatformsModel(QString name);
-    void addItemToMiscModel(QString name);
+    void addItemToBridgesModel(QString name, int index);
+    void addItemToPlatformsModel(QString name, int index);
+    void addItemToMiscModel(QString name, int index);
 
     void doNotForget();
 
@@ -102,9 +102,9 @@ public slots:
     void onStopRegistration();
     void onStartSwitch();
     void onEndSwitch();
-    void onBridgeSelected(QString name);
-    void onPlatformSelected(QString name);
-    void onMiscSelected(QString name);
+    void onBridgeSelected(int index);
+    void onPlatformSelected(int index);
+    void onMiscSelected(int index);
     void onSetIpAddress(QString ipAddress);    
     void onConnectToServer();
     void onNotifyThresholdChanged(int threshold);

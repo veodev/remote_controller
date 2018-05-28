@@ -6,9 +6,9 @@ import QtQuick.Dialogs 1.2
 
 Page {
     id: page
-    width: 720
-    height: 1280
-    anchors.fill: parent
+////    width: 720
+////    height: 1280
+//    anchors.fill: parent
     title: qsTr("Отметки")
 
     Rectangle {
@@ -21,6 +21,7 @@ Page {
 
         CustomButton {
             id: startSwitchButton
+            customButtonFontPointSize: 30
             text: "Начало\n стрелки"
             z: 2
             spacing: 5
@@ -33,11 +34,13 @@ Page {
             height: window.height/10
             onReleased: {
                 backend.startSwitch()
+                stackView.pop()
             }
         }
 
         CustomButton {
             id: endSwitchButton
+            customButtonFontPointSize: 30
             x: 401
             text: "Конец\n стрелки"
             z: 2
@@ -49,6 +52,7 @@ Page {
             height: window.height/10
             onReleased: {
                 backend.endSwitch()
+                stackView.pop()
             }
         }
 
@@ -130,13 +134,16 @@ Page {
                         height: window.height/10
 
                         CustomButton {
+                            customButtonIndex: buttonIndex
+                            customButtonFontPointSize: 20
                             anchors.fill: parent
                             anchors.topMargin: 60
                             anchors.leftMargin: 0
                             anchors.rightMargin: 0
                             text: buttonText
                             onReleased: {
-                                backend.bridgeSelected(buttonText)
+                                backend.bridgeSelected(buttonIndex)
+                                stackView.pop()
                             }
                         }
                     }
@@ -160,13 +167,16 @@ Page {
                         height: window.height/10
 
                         CustomButton {
+                            customButtonIndex: buttonIndex
+                            customButtonFontPointSize: 20
                             anchors.fill: parent
                             anchors.topMargin: 60
                             anchors.leftMargin: 0
                             anchors.rightMargin: 0
                             text: buttonText
                             onReleased: {
-                                backend.platformSelected(buttonText)
+                                backend.platformSelected(buttonIndex)
+                                stackView.pop()
                             }
                         }
                     }
@@ -190,13 +200,16 @@ Page {
                         height: window.height/10
 
                         CustomButton {
+                            customButtonIndex: buttonIndex
+                            customButtonFontPointSize: 20
                             anchors.fill: parent
                             anchors.topMargin: 60
                             anchors.leftMargin: 0
                             anchors.rightMargin: 0
                             text: buttonText
-                            onReleased: {
-                                backend.miscSelected(buttonText)
+                            onReleased: {                                
+                                backend.miscSelected(buttonIndex)
+                                stackView.pop()
                             }
                         }
                     }
@@ -233,13 +246,13 @@ Page {
             miscListModel.clear()            
         }
         onDoAddItemToBridgesModel: {
-            bridgesListModel.append({buttonText: name})            
+            bridgesListModel.append({buttonText: name, buttonIndex: index})
         }
         onDoAddItemToPlatformsModel: {
-            platformsListModel.append({buttonText: name})            
+            platformsListModel.append({buttonText: name, buttonIndex: index})
         }
         onDoAddItemToMiscModel: {
-            miscListModel.append({buttonText: name})            
+            miscListModel.append({buttonText: name, buttonIndex: index})
         }
     }
 }
