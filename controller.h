@@ -43,7 +43,7 @@ public:
     void setNotifyGraphicsStatus(bool isEnabled);
     bool getNotifyGraphicsStatus();
 
-    Q_PROPERTY(bool _notifyThresholdIndex READ getNotifyThresholdIndex WRITE setNotifyThresholdIndex NOTIFY doNotifyThresholdIndexChanged)
+    Q_PROPERTY(int _notifyThresholdIndex READ getNotifyThresholdIndex WRITE setNotifyThresholdIndex NOTIFY doNotifyThresholdIndexChanged)
     void setNotifyThresholdIndex(int index);
     int getNotifyThresholdIndex();
 

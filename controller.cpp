@@ -69,7 +69,7 @@ Controller::Controller(QObject *parent) : QObject(parent)
     setNotifyStatus(QSettings().value("NotifyStatus", true).toBool());
     setNotifySoundStatus(QSettings().value("NotifySoundStatus", true).toBool());
     setNotifyGraphicsStatus(QSettings().value("NotifyGraphicsStatus", true).toBool());
-    setNotifyThresholdIndex(QSettings().value("NotifyThresholdIndex", 0).toInt());
+    setNotifyThresholdIndex(QSettings().value("NotifyThresholdIndex", 9).toInt());
 
     _audioThread->setObjectName("mediaThread");
     _audio = new Audio();

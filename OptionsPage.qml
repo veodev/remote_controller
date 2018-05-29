@@ -132,7 +132,7 @@ Page {
                         Layout.fillWidth: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         Component.onCompleted: notifySoundStatus.checked = backend._isNotifySoundEnabled
-                        onCheckedChanged: backend._isNotifySoundEnabled = notifySoundStatus.checked                        
+                        onCheckedChanged: backend._isNotifySoundEnabled = notifySoundStatus.checked
                     }
                     anchors.leftMargin: 20
                 }
@@ -194,17 +194,10 @@ Page {
                     Layout.fillWidth: true
                     focusPolicy: Qt.NoFocus
                     visibleItemCount: 5
-                    model: ListModel {
-                        Component.onCompleted: {
-                            for (var i = 5; i <= 50; i += 5) {
-                                append({value: i.toString()});
-                            }
-                            notifyThreshold.currentIndex = backend._notifyThresholdIndex
-                        }
-                    }
-
+                    model: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
+                    currentIndex: backend._notifyThresholdIndex
                     onCurrentIndexChanged: {
-                        backend._notifyThresholdIndex = notifyThreshold.currentIndex
+                        backend._notifyThresholdIndex = currentIndex
                         backend.setNotifyThreshold(parseInt(currentItem.text))
                     }
                 }
